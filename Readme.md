@@ -1,7 +1,7 @@
 # Личный проект «Киноман» [![Build status][travis-image]][travis-url]
 
-* Студент: [Алексей Мамаев](https://up.htmlacademy.ru/ecmascript/8/user/657189).
-* Наставник: `Неизвестно`.
+* Студент: [Алексей Мамаев (lexiosAlex)](https://up.htmlacademy.ru/ecmascript/8/user/657189).
+* Наставник: [Евгений Колегов (KollegOFF)](https://htmlacademy.ru/profile/id21780).
 
 ---
 
