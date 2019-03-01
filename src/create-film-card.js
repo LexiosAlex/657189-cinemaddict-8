@@ -6,9 +6,9 @@ export default (data, tempArea) => {
   let parsedDuration = ``;
   const parseDurationHours = () => {
     if (duration.getUTCHours() > 0) {
-      parsedDuration = `${duration.getUTCHours()}h ${duration.getUTCMinutes()}`;
+      parsedDuration = `${duration.getUTCHours()}h ${duration.getUTCMinutes()}m`;
     } else {
-      parsedDuration = `${duration.getUTCMinutes()}`;
+      parsedDuration = `${duration.getUTCMinutes()}m`;
     }
   };
 
@@ -29,7 +29,7 @@ export default (data, tempArea) => {
   `;
 
   filmInfo.duration = `
-    <span class="film-card__duration">${parsedDuration}m</span>
+    <span class="film-card__duration">${parsedDuration}</span>
   `;
 
   filmInfo.genre = `${[...genres].map((genre) => `

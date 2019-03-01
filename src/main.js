@@ -36,7 +36,6 @@ const removeFilters = () => {
   });
 };
 
-
 removeFilters();
 renderFilter(filterElements);
 
@@ -59,13 +58,11 @@ const renderFilmCard = (count, area) => {
   for (let i = 0; i < count; i++) {
 
     const getDescription = (times) => {
-      let emptyString = ``;
       let stringArray = [];
       for (let j = 0; j < times; j++) {
         stringArray[j] = DescriptionSentenses[Math.floor(Math.random() * DescriptionSentenses.length)];
-        emptyString += stringArray[j];
       }
-      return emptyString;
+      return stringArray.join(` `);
     };
 
     const filmExample = {
@@ -88,13 +85,10 @@ const renderFilmCard = (count, area) => {
   }
 };
 
-const renderExamples = () => {
-  ALL_FILMS_AREA.forEach((item) => {
-    renderFilmCard(2, item);
-  });
-};
 
-renderExamples();
+ALL_FILMS_AREA.forEach((item) => {
+  renderFilmCard(2, item);
+});
 
 renderFilmCard(5, FILMS_LIST_MAIN);
 
@@ -105,13 +99,10 @@ const removeFilmCards = () => {
   });
 };
 
-const filtersListener = () => {
-  FILTERS_AREA.querySelectorAll(`.main-navigation__item`).forEach((item) => {
-    item.addEventListener(`click`, () => {
-      removeFilmCards();
-      let randomValue = Math.floor(Math.random() * 10);
-      renderFilmCard(randomValue, ALL_FILMS_AREA[0]);
-    });
+FILTERS_AREA.querySelectorAll(`.main-navigation__item`).forEach((item) => {
+  item.addEventListener(`click`, () => {
+    removeFilmCards();
+    let randomValue = Math.floor(Math.random() * 10);
+    renderFilmCard(randomValue, ALL_FILMS_AREA[0]);
   });
-};
-filtersListener();
+});
