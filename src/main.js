@@ -1,6 +1,7 @@
 import {FILTERS_AREA, ALL_FILMS_AREA, FILMS_LIST_MAIN} from './export-const.js';
 import renderFilter from './render-filter.js';
 import createFilmCard from './create-film-card.js';
+import filmPopup from './film-popup.js';
 
 const filterElements = [
   {
@@ -53,7 +54,6 @@ const DescriptionSentenses = [
   `In rutrum ac purus sit amet tempus.`,
 ];
 
-
 const renderFilmCard = (count, area) => {
   for (let i = 0; i < count; i++) {
 
@@ -69,7 +69,7 @@ const renderFilmCard = (count, area) => {
       filmTitle: films[Math.floor(Math.random() * films.length)],
       rating: (Math.random() * 10).toFixed(1),
       year: new Date(Math.random() * 3600 * 1000 * 24 * 365 * 45),
-      duration: new Date(Math.random() * 3600 * 1000 * Math.floor(Math.random() * 2 + 1)),
+      duration: Math.floor(Math.random() * 200),
       genres: new Set([
         `fantasy`,
         `detective`,
@@ -80,8 +80,18 @@ const renderFilmCard = (count, area) => {
       description: getDescription(Math.floor(Math.random() * 2 + 1)),
       commentsCount: Math.floor(Math.random() * 100),
     };
+    let filmCard = new createFilmCard(filmExample);
+    let filmPopupElement = new filmPopup(filmExample);
+    area.appendChild(filmCard.render());
 
-    createFilmCard(filmExample, area);
+    filmCard.onComments = () => {
+      document.body.appendChild(filmPopupElement.render());
+    };
+
+    filmPopupElement.onClose = () => {
+      debugger;
+      filmPopupElement.unrender();
+    };
   }
 };
 
