@@ -1,6 +1,6 @@
 import {FILTERS_AREA, ALL_FILMS_AREA, FILMS_LIST_MAIN} from './export-const.js';
 import renderFilter from './render-filter.js';
-import CreateFilmCard from './create-film-card.js';
+import CreateFilmCard from './film.js';
 import FilmPopup from './film-popup.js';
 
 const filterElements = [

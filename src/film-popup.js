@@ -1,6 +1,6 @@
 import createElement from './create-element.js';
 
-export default class filmPopup {
+export default class FilmPopup {
   constructor(data) {
     this._filmTitle = data.filmTitle;
     this._rating = data.rating;
