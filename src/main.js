@@ -1,7 +1,7 @@
 import {FILTERS_AREA, ALL_FILMS_AREA, FILMS_LIST_MAIN} from './export-const.js';
 import renderFilter from './render-filter.js';
-import createFilmCard from './create-film-card.js';
-import filmPopup from './film-popup.js';
+import CreateFilmCard from './create-film-card.js';
+import FilmPopup from './film-popup.js';
 
 const filterElements = [
   {
@@ -80,8 +80,8 @@ const renderFilmCard = (count, area) => {
       description: getDescription(Math.floor(Math.random() * 2 + 1)),
       commentsCount: Math.floor(Math.random() * 100),
     };
-    let filmCard = new createFilmCard(filmExample);
-    let filmPopupElement = new filmPopup(filmExample);
+    let filmCard = new CreateFilmCard(filmExample);
+    let filmPopupElement = new FilmPopup(filmExample);
     area.appendChild(filmCard.render());
 
     filmCard.onComments = () => {
@@ -89,7 +89,7 @@ const renderFilmCard = (count, area) => {
     };
 
     filmPopupElement.onClose = () => {
-      debugger;
+      document.body.removeChild(filmPopupElement.element);
       filmPopupElement.unrender();
     };
   }

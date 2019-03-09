@@ -1,8 +1,4 @@
-const createElement = (template) => {
-  const elementTemplate = document.createElement(`div`);
-  elementTemplate.innerHTML = template;
-  return elementTemplate.firstChild;
-};
+import createElement from './create-element.js';
 
 export default class film {
   constructor(data) {
