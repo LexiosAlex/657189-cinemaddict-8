@@ -1,7 +1,8 @@
-import createElement from './create-element.js';
+import Component from './component.js';
 
-export default class Film {
+export default class Film extends Component {
   constructor(data) {
+    super();
     this._filmTitle = data.filmTitle;
     this._rating = data.rating;
     this._year = data.year;
@@ -23,10 +24,6 @@ export default class Film {
   _onCommentsButtonClick(evt) {
     evt.preventDefault();
     return typeof this._onComments === `function` && this._onComments();
-  }
-
-  get element() {
-    return this._element;
   }
 
   get template() {
@@ -112,9 +109,5 @@ export default class Film {
       .addEventListener(`click`, this._onCommentsButtonClick);
   }
 
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
+  unrender() {}
 }

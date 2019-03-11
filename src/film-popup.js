@@ -1,7 +1,8 @@
-import createElement from './create-element.js';
+import Component from './component.js';
 
-export default class FilmPopup {
+export default class FilmPopup extends Component {
   constructor(data) {
+    super();
     this._filmTitle = data.filmTitle;
     this._rating = data.rating;
     this._year = data.year;
@@ -23,10 +24,6 @@ export default class FilmPopup {
   _onButtonClose(evt) {
     evt.preventDefault();
     return typeof this._onClose === `function` && this._onClose();
-  }
-
-  get element() {
-    return this._element;
   }
 
   get template() {
@@ -279,14 +276,4 @@ export default class FilmPopup {
       .removeEventListener(`click`, this._onButtonClose);
   }
 
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
-  }
 }
