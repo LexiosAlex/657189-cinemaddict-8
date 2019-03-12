@@ -109,5 +109,4 @@ export default class Film extends Component {
       .addEventListener(`click`, this._onCommentsButtonClick);
   }
 
-  unrender() {}
 }
