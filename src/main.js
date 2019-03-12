@@ -89,7 +89,6 @@ const renderFilmCard = (count, area) => {
     };
 
     filmPopupElement.onClose = () => {
-      document.body.removeChild(filmPopupElement.element);
       filmPopupElement.unrender();
     };
   }
