@@ -10,7 +10,13 @@ export default class Film extends Component {
     this._genres = data.genres;
     this._poster = data.poster;
     this._description = data.description;
-    this._commentsCount = data.commentsCount;
+    this._comments = data.comments;
+
+    this._state = {
+      isAlreadyWatched: data.isAlreadyWatched,
+      isFavorite: data.isFavorite,
+      isWatchList: data.isWatchList,
+    };
 
     this._element = null;
     this._onComments = null;
@@ -78,7 +84,7 @@ export default class Film extends Component {
     `;
 
     filmCard.comments = `
-      <button class="film-card__comments">${this._commentsCount} comments</button>
+      <button class="film-card__comments">${this._comments.length} comments</button>
     `;
 
     filmCard.controls = `
@@ -107,6 +113,28 @@ export default class Film extends Component {
   bind() {
     this._element.querySelector(`.film-card__comments`)
       .addEventListener(`click`, this._onCommentsButtonClick);
+  }
+
+  undibind() {
+    this._element.querySelector(`.film-card__comments`)
+      .removeEventListener(`click`, this._onCommentsButtonClick);
+  }
+
+  _particularUpdate() {
+    this._element.innerHTML = this.template;
+  }
+
+  reRender() {
+    this.undibind();
+    this._particularUpdate();
+    this.bind();
+  }
+
+  update(upData) {
+    this.comments = upData.comments;
+    this._state.isAlreadyWatched = upData.isAlreadyWatched;
+    this._state.isFavorite = upData.isFavorite;
+    this._state.isWatchList = upData.isWatchList;
   }
 
 }

@@ -40,6 +40,22 @@ const removeFilters = () => {
 removeFilters();
 renderFilter(filterElements);
 
+const getRandomComment = (count) => {
+  const EmojiList = [`sleeping`, `neutral-face`, `grinning`];
+
+  const commentsList = [];
+
+  for (let i = 0; i < count; i++) {
+    const comment = {
+      text: `mock comment auto add`,
+      emoji: EmojiList[Math.floor(Math.random() * 3)],
+      author: `Ermak Lolotov`,
+    };
+    commentsList[i] = comment;
+  }
+  return commentsList;
+};
+
 const films = [`Shrek2`, `The movie`, `Shrek3`, `Robocop`, `My cop`, `Warcraft`, `Breaking Bad`, `Banshi`, `Skyline`, `Loot`, `Bullets`, `Tape`, `Battle Angel`, `Napoleon`];
 const posterPhotos = [`three-friends.jpg`, `accused.jpg`, `blackmail.jpg`, `blue-blazes.jpg`, `fuga-da-new-york.jpg`, `moonrise.jpg`];
 const DescriptionSentenses = [
@@ -78,7 +94,10 @@ const renderFilmCard = (count, area) => {
       ]),
       poster: `./images/posters/${posterPhotos[Math.floor(Math.random() * posterPhotos.length)]}`,
       description: getDescription(Math.floor(Math.random() * 2 + 1)),
-      commentsCount: Math.floor(Math.random() * 100),
+      comments: getRandomComment(3),
+      isAlreadyWatched: false,
+      isFavorite: false,
+      isWatchList: false,
     };
     let filmCard = new CreateFilmCard(filmExample);
     let filmPopupElement = new FilmPopup(filmExample);
@@ -89,6 +108,16 @@ const renderFilmCard = (count, area) => {
     };
 
     filmPopupElement.onClose = () => {
+      filmPopupElement.unrender();
+    };
+    filmPopupElement.onSubmit = (newObject) => {
+
+      filmExample.isAlreadyWatched = newObject.isAlreadyWatched;
+      filmExample.isFavorite = newObject.isFavorite;
+      filmExample.isWatchList = newObject.isWatchList;
+      filmCard.update(filmExample);
+      filmCard.reRender();
+
       filmPopupElement.unrender();
     };
   }
