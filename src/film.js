@@ -1,4 +1,5 @@
 import Component from './component.js';
+const moment = require(`moment`);
 
 export default class Film extends Component {
   constructor(data) {
@@ -33,11 +34,12 @@ export default class Film extends Component {
   }
 
   get template() {
-    const parseYear = this._year.getYear() + 1900;
+    const parseYear = moment.unix(this._year / 1000).format(`YYYY`);
+
     let parsedDuration = ``;
 
     if (this._duration > 60) {
-      parsedDuration = `${Math.floor(this._duration / 60)}h ${this._duration - (Math.floor(this._duration / 60) * 60)}m`;
+      parsedDuration = moment.utc(moment.duration(this._duration, `minutes`).asMilliseconds()).format(`h[h] m[m]`);
     } else {
       parsedDuration = `${this._duration}m`;
     }
@@ -118,10 +120,6 @@ export default class Film extends Component {
   undibind() {
     this._element.querySelector(`.film-card__comments`)
       .removeEventListener(`click`, this._onCommentsButtonClick);
-  }
-
-  _particularUpdate() {
-    this._element.innerHTML = this.template;
   }
 
   reRender() {

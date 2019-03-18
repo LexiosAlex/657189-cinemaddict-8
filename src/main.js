@@ -83,7 +83,14 @@ const renderFilmCard = (count, area) => {
 
     const filmExample = {
       filmTitle: films[Math.floor(Math.random() * films.length)],
+      originalTitle: `MOCK ORIGINAL TITLE`,
+      actors: new Set([
+        `Nikolas Cage`,
+        `Angelina Jolie`,
+        `Johnny Depp`,
+      ]),
       rating: (Math.random() * 10).toFixed(1),
+      ageRating: `18`,
       year: new Date(Math.random() * 3600 * 1000 * 24 * 365 * 45),
       duration: Math.floor(Math.random() * 200),
       genres: new Set([
@@ -92,6 +99,10 @@ const renderFilmCard = (count, area) => {
         `battle`,
         `romantic`,
       ]),
+      episodes: ``,
+      country: `USA`,
+      releaseDate: ``,
+      digitalRelease: ``,
       poster: `./images/posters/${posterPhotos[Math.floor(Math.random() * posterPhotos.length)]}`,
       description: getDescription(Math.floor(Math.random() * 2 + 1)),
       comments: getRandomComment(3),
@@ -111,14 +122,11 @@ const renderFilmCard = (count, area) => {
       filmPopupElement.unrender();
     };
     filmPopupElement.onSubmit = (newObject) => {
-
       filmExample.isAlreadyWatched = newObject.isAlreadyWatched;
       filmExample.isFavorite = newObject.isFavorite;
       filmExample.isWatchList = newObject.isWatchList;
       filmCard.update(filmExample);
       filmCard.reRender();
-
-      filmPopupElement.unrender();
     };
   }
 };

@@ -1,5 +1,6 @@
 import Component from './component.js';
 import createElement from './create-element.js';
+const moment = require(`moment`);
 
 export default class FilmPopup extends Component {
   constructor(data) {
@@ -13,6 +14,10 @@ export default class FilmPopup extends Component {
     this._description = data.description;
     this._comments = data.comments;
     this._userRate = data.userRate;
+    this._originalTitle = data.originalTitle;
+    this._ageRating = data.ageRating;
+    this._actors = data.actors;
+    this._country = data.country;
 
     this._state = {
       isAlreadyWatched: data.isAlreadyWatched,
@@ -23,7 +28,7 @@ export default class FilmPopup extends Component {
     this._onSubmit = null;
     this._onClose = null;
     this._element = null;
-    this._onSubmitKeyDown = this._onSubmitKeyDown.bind(this);
+    this._onSubmitCommentKeyDown = this._onSubmitCommentKeyDown.bind(this);
     this._onButtonClose = this._onButtonClose.bind(this);
     this._onEmojiCommentChange = this._onEmojiCommentChange.bind(this);
     this._filmUnWathced = this._filmUnWathced.bind(this);
@@ -40,17 +45,29 @@ export default class FilmPopup extends Component {
 
   _onButtonClose(evt) {
     evt.preventDefault();
-
+    this.element.querySelector(`.film-details__comment-input`).textContent = ``;
+    this.element.querySelector(`.film-details__comment-input`).value = ``;
+    this._returnData();
     return typeof this._onClose === `function` && this._onClose();
   }
 
-  _onSubmitKeyDown(evt) {
-    if (evt.keyCode === 13 && evt.ctrlKey) {
-      const formData = new FormData(this._element.querySelector(`.film-details__inner`));
-      const newData = this._processForm(formData);
+  _returnData() {
+    const formData = new FormData(this._element.querySelector(`.film-details__inner`));
+    const newData = this._processForm(formData);
+    this.update(newData);
 
-      this.update(newData);
-      return typeof this._onSubmit === `function` && this._onSubmit(newData);
+    if (typeof this._onSubmit === `function`) {
+      this._onSubmit(newData);
+    }
+  }
+
+  _onSubmitCommentKeyDown(evt) {
+    if (evt.keyCode === 13 && evt.ctrlKey) {
+      this._returnData();
+      this.unbind();
+      this._particularUpdate();
+      this._userRateChange();
+      this.bind();
     }
   }
 
@@ -96,13 +113,12 @@ export default class FilmPopup extends Component {
 
   _userRateChange() {
     if (this._userRate) {
-      const ratingNode = this._element.querySelector(`.film-details__user-rating-score`);
-      const ratingImputs = ratingNode.querySelectorAll(`input`);
+      const ratingImputs = this._element.querySelectorAll(`input[name=score]`);
       ratingImputs.forEach((it) => {
         it.checked = false;
       });
 
-      ratingNode.querySelector(`input[id=rating-${this._userRate}`).checked = true;
+      this._element.querySelector(`input[id=rating-${this._userRate}`).checked = true;
 
     }
   }
@@ -113,7 +129,9 @@ export default class FilmPopup extends Component {
   }
 
   get template() {
-    const parseYear = this._year.getYear() + 1900;
+    if (this._userRate === ``) {
+      this._userRate = undefined;
+    }
     const parsedDuration = `${this._duration}min`;
 
     const popupCard = {};
@@ -123,14 +141,14 @@ export default class FilmPopup extends Component {
     <div class="film-details__poster">
       <img class="film-details__poster-img" src="${this._poster}" alt="${this._filmTitle}">
 
-      <p class="film-details__age">18+</p>
+      <p class="film-details__age">${this._ageRating}+</p>
     </div>
     `;
 
     filmDetails.filmTitle = `
       <div class="film-details__title-wrap">
         <h3 class="film-details__title">${this._filmTitle}</h3>
-        <p class="film-details__title-original">Original: Невероятная семейка</p>
+        <p class="film-details__title-original">Original: ${this._originalTitle}</p>
       </div>
       `;
 
@@ -157,17 +175,21 @@ export default class FilmPopup extends Component {
       </tr>
       `;
 
+    const actors = {};
+
+    actors.actor = `${[...this._actors].map((actor) => `${actor}, `).join(``)}`;
+
     detailsTable.actors = `
       <tr class="film-details__row">
         <td class="film-details__term">Actors</td>
-        <td class="film-details__cell">Samuel L. Jackson, Catherine Keener, Sophia Bush</td>
+        <td class="film-details__cell">${actors.actor}</td>
       </tr>
       `;
 
     detailsTable.date = `
       <tr class="film-details__row">
         <td class="film-details__term">Release Date</td>
-        <td class="film-details__cell">15 June ${parseYear} (USA)</td>
+        <td class="film-details__cell">${moment.unix(this._year / 1000).format(`MMMM D YYYY`)} (${this._country})</td>
       </tr>
       `;
 
@@ -181,7 +203,7 @@ export default class FilmPopup extends Component {
     detailsTable.country = `
       <tr class="film-details__row">
         <td class="film-details__term">Country</td>
-        <td class="film-details__cell">USA</td>
+        <td class="film-details__cell">${this._country}</td>
       </tr>
     `;
 
@@ -302,7 +324,7 @@ export default class FilmPopup extends Component {
               <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="4" id="rating-4">
               <label class="film-details__user-rating-label" for="rating-4">4</label>
 
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5" checked>
+              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5">
               <label class="film-details__user-rating-label" for="rating-5">5</label>
 
               <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="6" id="rating-6">
@@ -363,7 +385,7 @@ export default class FilmPopup extends Component {
     });
     this.element.querySelector(`.film-details__watched-reset`)
       .addEventListener(`click`, this._filmUnWathced);
-    document.addEventListener(`keydown`, this._onSubmitKeyDown);
+    document.addEventListener(`keydown`, this._onSubmitCommentKeyDown);
   }
 
   render() {
@@ -381,12 +403,14 @@ export default class FilmPopup extends Component {
     });
     this.element.querySelector(`.film-details__watched-reset`)
       .removeEventListener(`click`, this._filmUnWathced);
-    document.removeEventListener(`keydown`, this._onSubmitKeyDown);
+    document.removeEventListener(`keydown`, this._onSubmitCommentKeyDown);
   }
 
   update(upData) {
     this._userRate = upData.userRate;
-    this._comments.push(upData.comment);
+    if (upData.comment.text.length) {
+      this._comments.push(upData.comment);
+    }
     this._state.isAlreadyWatched = upData.isAlreadyWatched;
     this._state.isFavorite = upData.isFavorite;
     this._state.isWatchList = upData.isWatchList;

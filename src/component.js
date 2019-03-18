@@ -35,5 +35,7 @@ export default class Component {
     this._element = null;
   }
 
-  update() {}
+  _particularUpdate() {
+    this._element.innerHTML = createElement(this.template).innerHTML;
+  }
 }
