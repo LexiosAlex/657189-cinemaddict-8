@@ -82,6 +82,7 @@ export default class FilmPopup extends Component {
       isFavorite: false,
       isWatchList: false,
       comment: {
+        addDate: Date.now(),
         text: ``,
         emoji: ``,
         author: `userName`,
@@ -252,6 +253,14 @@ export default class FilmPopup extends Component {
       </section>
       `;
 
+    const getCommentDate = (comment) => {
+      if (moment.unix((Date.now() - comment.addDate) / 1000) > (24 * 60 * 60)) {
+        return `${moment.unix((Date.now() - comment.addDate) / 1000).format(`D`)} days ago`;
+      } else {
+        return `${moment.unix((Date.now() - comment.addDate) / 1000).format(`m`)} mins ago`;
+      }
+    };
+
     filmDetails.comments = `
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${this._comments.length}</span></h3>
@@ -263,7 +272,7 @@ export default class FilmPopup extends Component {
               <p class="film-details__comment-text">${comment.text}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${comment.author}</span>
-                <span class="film-details__comment-day">3 days ago</span>
+                <span class="film-details__comment-day">${getCommentDate(comment)}</span>
               </p>
             </div>
           </li>`).join(``)}

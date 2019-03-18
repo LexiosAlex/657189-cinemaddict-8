@@ -50,6 +50,7 @@ const getRandomComment = (count) => {
       text: `mock comment auto add`,
       emoji: EmojiList[Math.floor(Math.random() * 3)],
       author: `Ermak Lolotov`,
+      addDate: new Date(Date.now() - (Math.random() * 24 * (7) * 1000 * 60 * 60)),
     };
     commentsList[i] = comment;
   }
@@ -80,7 +81,6 @@ const renderFilmCard = (count, area) => {
       }
       return stringArray.join(` `);
     };
-
     const filmExample = {
       filmTitle: films[Math.floor(Math.random() * films.length)],
       originalTitle: `MOCK ORIGINAL TITLE`,
