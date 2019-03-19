@@ -1,5 +1,5 @@
 import Component from './component.js';
-const moment = require(`moment`);
+import moment from 'moment';
 
 export default class Film extends Component {
   constructor(data) {
@@ -13,11 +13,9 @@ export default class Film extends Component {
     this._description = data.description;
     this._comments = data.comments;
 
-    this._state = {
-      isAlreadyWatched: data.isAlreadyWatched,
-      isFavorite: data.isFavorite,
-      isWatchList: data.isWatchList,
-    };
+    this._isAlreadyWatched = data.isAlreadyWatched;
+    this._isFavorite = data.isFavorite;
+    this._isWatchList = data.isWatchList;
 
     this._element = null;
     this._onComments = null;
@@ -130,9 +128,9 @@ export default class Film extends Component {
 
   update(upData) {
     this.comments = upData.comments;
-    this._state.isAlreadyWatched = upData.isAlreadyWatched;
-    this._state.isFavorite = upData.isFavorite;
-    this._state.isWatchList = upData.isWatchList;
+    this._isAlreadyWatched = upData.isAlreadyWatched;
+    this._isFavorite = upData.isFavorite;
+    this._isWatchList = upData.isWatchList;
   }
 
 }

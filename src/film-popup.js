@@ -1,6 +1,6 @@
 import Component from './component.js';
 import createElement from './create-element.js';
-const moment = require(`moment`);
+import moment from 'moment';
 
 export default class FilmPopup extends Component {
   constructor(data) {
@@ -19,11 +19,9 @@ export default class FilmPopup extends Component {
     this._actors = data.actors;
     this._country = data.country;
 
-    this._state = {
-      isAlreadyWatched: data.isAlreadyWatched,
-      isFavorite: data.isFavorite,
-      isWatchList: data.isWatchList,
-    };
+    this._isAlreadyWatched = data.isAlreadyWatched;
+    this._isFavorite = data.isFavorite;
+    this._isWatchList = data.isWatchList;
 
     this._onSubmit = null;
     this._onClose = null;
@@ -66,7 +64,6 @@ export default class FilmPopup extends Component {
       this._returnData();
       this.unbind();
       this._particularUpdate();
-      this._userRateChange();
       this.bind();
     }
   }
@@ -112,27 +109,13 @@ export default class FilmPopup extends Component {
     return false;
   }
 
-  _userRateChange() {
-    if (this._userRate) {
-      const ratingImputs = this._element.querySelectorAll(`input[name=score]`);
-      ratingImputs.forEach((it) => {
-        it.checked = false;
-      });
-
-      this._element.querySelector(`input[id=rating-${this._userRate}`).checked = true;
-
-    }
-  }
-
   _filmUnWathced() {
     this._element.querySelector(`input[name=watched]`).checked = false;
     this._element.querySelector(`.film-details__watched-status`).classList.remove(`film-details__watched-status--active`);
   }
 
   get template() {
-    if (this._userRate === ``) {
-      this._userRate = undefined;
-    }
+
     const parsedDuration = `${this._duration}min`;
 
     const popupCard = {};
@@ -178,7 +161,7 @@ export default class FilmPopup extends Component {
 
     const actors = {};
 
-    actors.actor = `${[...this._actors].map((actor) => `${actor}, `).join(``)}`;
+    actors.actor = `${[...this._actors].map((actor) => `${actor}`).join(`, `)}`;
 
     detailsTable.actors = `
       <tr class="film-details__row">
@@ -242,24 +225,16 @@ export default class FilmPopup extends Component {
 
     filmDetails.controls = `
       <section class="film-details__controls">
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${this._state.isWatchList ? `checked` : ``}>
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${this._isWatchList ? `checked` : ``}>
         <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${this._state.isAlreadyWatched ? `checked` : ``}>
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${this._isAlreadyWatched ? `checked` : ``}>
         <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${this._state.isFavorite ? `checked` : ``}>
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${this._isFavorite ? `checked` : ``}>
         <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
       </section>
       `;
-
-    const getCommentDate = (comment) => {
-      if (moment.unix((Date.now() - comment.addDate) / 1000) > (24 * 60 * 60)) {
-        return `${moment.unix((Date.now() - comment.addDate) / 1000).format(`D`)} days ago`;
-      } else {
-        return `${moment.unix((Date.now() - comment.addDate) / 1000).format(`m`)} mins ago`;
-      }
-    };
 
     filmDetails.comments = `
       <section class="film-details__comments-wrap">
@@ -272,7 +247,7 @@ export default class FilmPopup extends Component {
               <p class="film-details__comment-text">${comment.text}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${comment.author}</span>
-                <span class="film-details__comment-day">${getCommentDate(comment)}</span>
+                <span class="film-details__comment-day">${moment.unix(comment.addDate / 1000).fromNow()}</span>
               </p>
             </div>
           </li>`).join(``)}
@@ -300,12 +275,25 @@ export default class FilmPopup extends Component {
         </div>
       </section>
       `;
+    const getRatingString = (rating) => {
+      const arr = [];
+      for (let i = 0; i < 10; i++) {
+        if (rating === i.toString()) {
+          arr[i] = `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i}" id="rating-${i}" checked>
+                  <label class="film-details__user-rating-label" for="rating-${i}">${i}</label>`;
+        } else {
+          arr[i] = `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i}" id="rating-${i}">
+                  <label class="film-details__user-rating-label" for="rating-${i}">${i}</label>`;
+        }
+      }
+      return arr.join(``);
+    };
 
     filmDetails.UserRate = `
       <section class="film-details__user-rating-wrap">
         <div class="film-details__user-rating-controls">
 
-          <span class="film-details__watched-status ${this._state.isAlreadyWatched ? `film-details__watched-status--active` : ``}">Already watched</span>
+          <span class="film-details__watched-status ${this._isAlreadyWatched ? `film-details__watched-status--active` : ``}">Already watched</span>
 
           <button class="film-details__watched-reset" type="button">undo</button>
         </div>
@@ -321,32 +309,8 @@ export default class FilmPopup extends Component {
             <p class="film-details__user-rating-feelings">How you feel it?</p>
 
             <div class="film-details__user-rating-score">
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="1" id="rating-1">
-              <label class="film-details__user-rating-label" for="rating-1">1</label>
 
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="2" id="rating-2">
-              <label class="film-details__user-rating-label" for="rating-2">2</label>
-
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="3" id="rating-3">
-              <label class="film-details__user-rating-label" for="rating-3">3</label>
-
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="4" id="rating-4">
-              <label class="film-details__user-rating-label" for="rating-4">4</label>
-
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5">
-              <label class="film-details__user-rating-label" for="rating-5">5</label>
-
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="6" id="rating-6">
-              <label class="film-details__user-rating-label" for="rating-6">6</label>
-
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="7" id="rating-7">
-              <label class="film-details__user-rating-label" for="rating-7">7</label>
-
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="8" id="rating-8">
-              <label class="film-details__user-rating-label" for="rating-8">8</label>
-
-              <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="9" id="rating-9">
-              <label class="film-details__user-rating-label" for="rating-9">9</label>
+            ${getRatingString(this._userRate)}
 
             </div>
           </section>
@@ -400,7 +364,6 @@ export default class FilmPopup extends Component {
   render() {
     this._element = createElement(this.template);
     this.bind();
-    this._userRateChange();
     return this._element;
   }
 
@@ -420,9 +383,9 @@ export default class FilmPopup extends Component {
     if (upData.comment.text.length) {
       this._comments.push(upData.comment);
     }
-    this._state.isAlreadyWatched = upData.isAlreadyWatched;
-    this._state.isFavorite = upData.isFavorite;
-    this._state.isWatchList = upData.isWatchList;
+    this._isAlreadyWatched = upData.isAlreadyWatched;
+    this._isFavorite = upData.isFavorite;
+    this._isWatchList = upData.isWatchList;
   }
 
   static createMapper(target) {
