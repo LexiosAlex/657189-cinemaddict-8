@@ -34,4 +34,8 @@ export default class Component {
     this._element.remove();
     this._element = null;
   }
+
+  _particularUpdate() {
+    this._element.innerHTML = createElement(this.template).innerHTML;
+  }
 }

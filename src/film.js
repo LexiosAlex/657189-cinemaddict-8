@@ -1,4 +1,5 @@
 import Component from './component.js';
+import moment from 'moment';
 
 export default class Film extends Component {
   constructor(data) {
@@ -10,7 +11,11 @@ export default class Film extends Component {
     this._genres = data.genres;
     this._poster = data.poster;
     this._description = data.description;
-    this._commentsCount = data.commentsCount;
+    this._comments = data.comments;
+
+    this._isAlreadyWatched = data.isAlreadyWatched;
+    this._isFavorite = data.isFavorite;
+    this._isWatchList = data.isWatchList;
 
     this._element = null;
     this._onComments = null;
@@ -27,11 +32,12 @@ export default class Film extends Component {
   }
 
   get template() {
-    const parseYear = this._year.getYear() + 1900;
+    const parseYear = moment.unix(this._year / 1000).format(`YYYY`);
+
     let parsedDuration = ``;
 
     if (this._duration > 60) {
-      parsedDuration = `${Math.floor(this._duration / 60)}h ${this._duration - (Math.floor(this._duration / 60) * 60)}m`;
+      parsedDuration = moment.utc(moment.duration(this._duration, `minutes`).asMilliseconds()).format(`h[h] m[m]`);
     } else {
       parsedDuration = `${this._duration}m`;
     }
@@ -78,7 +84,7 @@ export default class Film extends Component {
     `;
 
     filmCard.comments = `
-      <button class="film-card__comments">${this._commentsCount} comments</button>
+      <button class="film-card__comments">${this._comments.length} comments</button>
     `;
 
     filmCard.controls = `
@@ -107,6 +113,24 @@ export default class Film extends Component {
   bind() {
     this._element.querySelector(`.film-card__comments`)
       .addEventListener(`click`, this._onCommentsButtonClick);
+  }
+
+  undibind() {
+    this._element.querySelector(`.film-card__comments`)
+      .removeEventListener(`click`, this._onCommentsButtonClick);
+  }
+
+  reRender() {
+    this.undibind();
+    this._particularUpdate();
+    this.bind();
+  }
+
+  update(upData) {
+    this.comments = upData.comments;
+    this._isAlreadyWatched = upData.isAlreadyWatched;
+    this._isFavorite = upData.isFavorite;
+    this._isWatchList = upData.isWatchList;
   }
 
 }
