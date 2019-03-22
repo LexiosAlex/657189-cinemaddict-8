@@ -1,7 +1,6 @@
 import Component from './component.js';
 import createElement from './create-element.js';
 import moment from 'moment';
-
 export default class FilmPopup extends Component {
   constructor(data) {
     super();
@@ -222,7 +221,7 @@ export default class FilmPopup extends Component {
         ${this._description}
       </p>
       `;
-
+debugger;
     filmDetails.controls = `
       <section class="film-details__controls">
         <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${this._isWatchList ? `checked` : ``}>
@@ -379,9 +378,12 @@ export default class FilmPopup extends Component {
   }
 
   update(upData) {
+    debugger;
     this._userRate = upData.userRate;
-    if (upData.comment.text.length) {
-      this._comments.push(upData.comment);
+    if (upData.comment){
+      if (upData.comment.text.length){
+        this._comments.push(upData.comment);
+      }
     }
     this._isAlreadyWatched = upData.isAlreadyWatched;
     this._isFavorite = upData.isFavorite;

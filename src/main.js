@@ -118,9 +118,28 @@ const renderFilmCard = (count, area) => {
       document.body.appendChild(filmPopupElement.render());
     };
 
+    filmCard.onMarkAsWatched = (state) => {
+      filmExample.isAlreadyWatched = state;
+      filmPopupElement.update(filmExample);
+      filmCard.reRender();
+    };
+
+    filmCard.onAddToFavorite = (state) => {
+      filmExample.isFavorite = state;
+      filmPopupElement.update(filmExample);
+      filmCard.reRender();
+    };
+
+    filmCard.onAddToWatchList = (state) => {
+      filmExample.isWatchList = state;
+      filmPopupElement.update(filmExample);
+      filmCard.reRender();
+    };
+
     filmPopupElement.onClose = () => {
       filmPopupElement.unrender();
     };
+
     filmPopupElement.onSubmit = (newObject) => {
       filmExample.isAlreadyWatched = newObject.isAlreadyWatched;
       filmExample.isFavorite = newObject.isFavorite;
