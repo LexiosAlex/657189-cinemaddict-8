@@ -36,43 +36,6 @@
       <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
 
       <div class="films-list__container">
-        <article class="film-card">
-          <h3 class="film-card__title">The Assassination Of Jessie James By The Coward Robert Ford</h3>
-          <p class="film-card__rating">9.8</p>
-          <p class="film-card__info">
-            <span class="film-card__year">2018</span>
-            <span class="film-card__duration">1h&nbsp;13m</span>
-            <span class="film-card__genre">Comedy</span>
-          </p>
-          <img src="./images/posters/three-friends.jpg" alt="" class="film-card__poster">
-          <p class="film-card__description">A priest with a haunted past and a novice on the threshold of her final vows are sent by the Vatican to investigate the death of a young nun in Romania and confront a malevolent force in the form of a demonic nun.</p>
-          <button class="film-card__comments">13 comments</button>
-
-          <form class="film-card__controls">
-            <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist"><!--Add to watchlist--> WL</button>
-            <button class="film-card__controls-item button film-card__controls-item--mark-as-watched"><!--Mark as watched-->WTCHD</button>
-            <button class="film-card__controls-item button film-card__controls-item--favorite"><!--Mark as favorite-->FAV</button>
-          </form>
-        </article>
-
-        <article class="film-card">
-          <h3 class="film-card__title">Incredibles 2</h3>
-          <p class="film-card__rating">9.8</p>
-          <p class="film-card__info">
-            <span class="film-card__year">2018</span>
-            <span class="film-card__duration">1h&nbsp;13m</span>
-            <span class="film-card__genre">Comedy</span>
-          </p>
-          <img src="./images/posters/moonrise.jpg" alt="" class="film-card__poster">
-          <p class="film-card__description">A priests Romania and confront a malevolent force in the form of a demonic nun.</p>
-          <button class="film-card__comments">13 comments</button>
-
-          <form class="film-card__controls">
-            <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
-            <button class="film-card__controls-item button film-card__controls-item--mark-as-watched">Mark as watched</button>
-            <button class="film-card__controls-item button film-card__controls-item--favorite">Mark as favorite</button>
-          </form>
-        </article>
       </div>
 
       <button class="films-list__show-more">Show more</button>
@@ -144,6 +107,49 @@
       </div>
     </section>
   </section>
+  <section class="statistic">
+    <p class="statistic__rank">Your rank <span class="statistic__rank-label">Sci-Fighter</span></p>
+
+    <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters visually-hidden">
+      <p class="statistic__filters-description">Show stats:</p>
+
+      <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-all-time" value="all-time" checked>
+      <label for="statistic-all-time" class="statistic__filters-label">All time</label>
+
+      <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-today" value="today">
+      <label for="statistic-today" class="statistic__filters-label">Today</label>
+
+      <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-week" value="week">
+      <label for="statistic-week" class="statistic__filters-label">Week</label>
+
+      <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-month" value="month">
+      <label for="statistic-month" class="statistic__filters-label">Month</label>
+
+      <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-year" value="year">
+      <label for="statistic-year" class="statistic__filters-label">Year</label>
+    </form>
+
+    <ul class="statistic__text-list">
+      <li class="statistic__text-item">
+        <h4 class="statistic__item-title">You watched</h4>
+        <p class="statistic__item-text">22 <span class="statistic__item-description">movies</span></p>
+      </li>
+      <li class="statistic__text-item">
+        <h4 class="statistic__item-title">Total duration</h4>
+        <p class="statistic__item-text">130 <span class="statistic__item-description">h</span> 22 <span class="statistic__item-description">m</span></p>
+      </li>
+      <li class="statistic__text-item">
+        <h4 class="statistic__item-title">Top genre</h4>
+        <p class="statistic__item-text">Sci-Fi</p>
+      </li>
+    </ul>
+
+    <div class="statistic__chart-wrap">
+      <canvas class="statistic__chart" width="1000"></canvas>
+    </div>
+
+</section>
+
 </main>
 
 

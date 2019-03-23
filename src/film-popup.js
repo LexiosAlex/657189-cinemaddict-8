@@ -221,7 +221,7 @@ export default class FilmPopup extends Component {
         ${this._description}
       </p>
       `;
-debugger;
+
     filmDetails.controls = `
       <section class="film-details__controls">
         <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${this._isWatchList ? `checked` : ``}>
@@ -378,10 +378,9 @@ debugger;
   }
 
   update(upData) {
-    debugger;
     this._userRate = upData.userRate;
-    if (upData.comment){
-      if (upData.comment.text.length){
+    if (upData.comment) {
+      if (upData.comment.text.length) {
         this._comments.push(upData.comment);
       }
     }

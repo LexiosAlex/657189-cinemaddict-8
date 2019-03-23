@@ -1,5 +1,6 @@
 import Component from './component.js';
 import moment from 'moment';
+import createElement from './create-element.js';
 
 export default class Film extends Component {
   constructor(data) {
@@ -23,6 +24,8 @@ export default class Film extends Component {
     this._onAddToWatchList = null;
     this._onAddToFavorite = null;
     this._onMarkAsWatched = null;
+
+    this._isDeleted = data.isDeleted;
 
     this._onCommentsButtonClick = this._onCommentsButtonClick.bind(this);
     this._onWatchListButtonClick = this._onWatchListButtonClick.bind(this);
@@ -89,6 +92,7 @@ export default class Film extends Component {
     }
 
     const filmCard = {};
+
     filmCard.filmTitle = `
       <h3 class="film-card__title">${this._filmTitle}</h3>
     `;
@@ -176,6 +180,12 @@ export default class Film extends Component {
       .removeEventListener(`click`, this._onWatchedButtonClick);
     this._element.querySelector(`.film-card__controls-item--favorite`)
       .removeEventListener(`click`, this._onFavoriteButtonClick);
+  }
+
+  render() {
+    this._element = createElement(this.template);
+    this.bind();
+    return this._element;
   }
 
   reRender() {

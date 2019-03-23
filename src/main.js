@@ -1,28 +1,31 @@
-import {FILTERS_AREA, ALL_FILMS_AREA, FILMS_LIST_MAIN} from './export-const.js';
+import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
 import renderFilter from './render-filter.js';
 import CreateFilmCard from './film.js';
 import FilmPopup from './film-popup.js';
 
 const filterElements = [
   {
-    id: `All`,
+    id: `AllFilms`,
     caption: `All movies`,
     active: true
   },
   {
-    id: `Watchlist`,
+    id: `WatchlistFilms`,
     caption: `Watchlist`,
-    amount: 13
+    amount: 0,
+    active: false
   },
   {
-    id: `History`,
+    id: `HistoryFilms`,
     caption: `History`,
-    amount: 4
+    amount: 0,
+    active: false
   },
   {
-    id: `Favorites`,
+    id: `FavoritesFilms`,
     caption: `Favorites`,
-    amount: 8
+    amount: 0,
+    active: false
   },
   {
     id: `Stats`,
@@ -71,16 +74,17 @@ const DescriptionSentenses = [
   `In rutrum ac purus sit amet tempus.`,
 ];
 
-const renderFilmCard = (count, area) => {
-  for (let i = 0; i < count; i++) {
+const getDescription = (times) => {
+  let stringArray = [];
+  for (let j = 0; j < times; j++) {
+    stringArray[j] = DescriptionSentenses[Math.floor(Math.random() * DescriptionSentenses.length)];
+  }
+  return stringArray.join(` `);
+};
 
-    const getDescription = (times) => {
-      let stringArray = [];
-      for (let j = 0; j < times; j++) {
-        stringArray[j] = DescriptionSentenses[Math.floor(Math.random() * DescriptionSentenses.length)];
-      }
-      return stringArray.join(` `);
-    };
+const mockDate = (count) => {
+  const mockArray = [];
+  for (let i = 0; i < count; i++) {
     const filmExample = {
       filmTitle: films[Math.floor(Math.random() * films.length)],
       originalTitle: `MOCK ORIGINAL TITLE`,
@@ -110,8 +114,35 @@ const renderFilmCard = (count, area) => {
       isFavorite: false,
       isWatchList: false,
     };
-    let filmCard = new CreateFilmCard(filmExample);
-    let filmPopupElement = new FilmPopup(filmExample);
+    mockArray.push(filmExample);
+  }
+  return mockArray;
+};
+
+const mockData = mockDate(8);
+
+let filmCards = [];
+let filmPopupCards = [];
+
+const createCardsData = (data) => {
+  filmCards = [];
+  filmPopupCards = [];
+  if (data.length !== 0) {
+    for (let i = 0; i < data.length; i++) {
+      filmCards[i] = new CreateFilmCard(data[i]);
+      filmPopupCards[i] = new FilmPopup(data[i]);
+    }
+  }
+};
+
+createCardsData(mockData);
+
+const renderFilmCard = (data, area) => {
+  for (let i = 0; i < filmCards.length; i++) {
+    let filmCard = filmCards[i];
+    let filmPopupElement = filmPopupCards[i];
+
+
     area.appendChild(filmCard.render());
 
     filmCard.onComments = () => {
@@ -119,20 +150,20 @@ const renderFilmCard = (count, area) => {
     };
 
     filmCard.onMarkAsWatched = (state) => {
-      filmExample.isAlreadyWatched = state;
-      filmPopupElement.update(filmExample);
+      data[i].isAlreadyWatched = state;
+      filmPopupElement.update(data[i]);
       filmCard.reRender();
     };
 
     filmCard.onAddToFavorite = (state) => {
-      filmExample.isFavorite = state;
-      filmPopupElement.update(filmExample);
+      data[i].isFavorite = state;
+      filmPopupElement.update(data[i]);
       filmCard.reRender();
     };
 
     filmCard.onAddToWatchList = (state) => {
-      filmExample.isWatchList = state;
-      filmPopupElement.update(filmExample);
+      data[i].isWatchList = state;
+      filmPopupElement.update(data[i]);
       filmCard.reRender();
     };
 
@@ -141,33 +172,57 @@ const renderFilmCard = (count, area) => {
     };
 
     filmPopupElement.onSubmit = (newObject) => {
-      filmExample.isAlreadyWatched = newObject.isAlreadyWatched;
-      filmExample.isFavorite = newObject.isFavorite;
-      filmExample.isWatchList = newObject.isWatchList;
-      filmCard.update(filmExample);
+      data[i].isAlreadyWatched = newObject.isAlreadyWatched;
+      data[i].isFavorite = newObject.isFavorite;
+      data[i].isWatchList = newObject.isWatchList;
+      filmCard.update(data[i]);
       filmCard.reRender();
     };
   }
 };
 
-
-ALL_FILMS_AREA.forEach((item) => {
-  renderFilmCard(2, item);
-});
-
-renderFilmCard(5, FILMS_LIST_MAIN);
-
 const removeFilmCards = () => {
-  let filmsArray = FILMS_LIST_MAIN.querySelectorAll(`.film-card`);
-  filmsArray.forEach((item) => {
-    FILMS_LIST_MAIN.removeChild(item);
-  });
+  for (let i = 0; i < filmCards.length; i++) {
+    let filmCard = filmCards[i];
+
+    filmCard.unrender();
+  }
 };
 
+
+renderFilmCard(mockData, FILMS_LIST_MAIN);
+
+
 FILTERS_AREA.querySelectorAll(`.main-navigation__item`).forEach((item) => {
-  item.addEventListener(`click`, () => {
-    removeFilmCards();
-    let randomValue = Math.floor(Math.random() * 10);
-    renderFilmCard(randomValue, ALL_FILMS_AREA[0]);
+  item.addEventListener(`click`, (filterName) => {
+    switch (filterName.srcElement.id) {
+      case `allfilms`:
+        removeFilmCards();
+        createCardsData(mockData);
+        renderFilmCard(mockData, FILMS_LIST_MAIN);
+        return;
+
+      case `watchlistfilms`:
+        const watchListFiltered = mockData.filter((it) => it.isWatchList === true);
+        removeFilmCards();
+        createCardsData(watchListFiltered);
+        renderFilmCard(mockData, FILMS_LIST_MAIN);
+        return;
+
+      case `historyfilms`:
+        const historyFiltered = mockData.filter((it) => it.isAlreadyWatched === true);
+        removeFilmCards();
+        createCardsData(historyFiltered);
+        renderFilmCard(mockData, FILMS_LIST_MAIN);
+        return;
+
+      case `favoritesfilms`:
+
+        const favoriteFiltered = mockData.filter((it) => it.isFavorite === true);
+        removeFilmCards();
+        createCardsData(favoriteFiltered);
+        renderFilmCard(mockData, FILMS_LIST_MAIN);
+        return;
+    }
   });
 });

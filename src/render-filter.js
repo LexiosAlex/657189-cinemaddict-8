@@ -6,7 +6,7 @@ export default (data) => {
     const elementTemplate = document.createElement(`template`);
 
     const createFilter = `
-      <a href="#${id.toLowerCase()}" class="main-navigation__item ${active ? `main-navigation__item--active` : ` `} ">
+      <a href="#${id.toLowerCase()}" id="${id.toLowerCase()}" class="main-navigation__item ${active ? `main-navigation__item--active` : ` `} ">
         ${caption}
         ${amount ? `<span class="main-navigation__item-count">${amount}</span>` : ` `}
       </a>
