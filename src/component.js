@@ -38,4 +38,5 @@ export default class Component {
   _particularUpdate() {
     this._element.innerHTML = createElement(this.template).innerHTML;
   }
+
 }

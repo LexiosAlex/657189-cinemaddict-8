@@ -1,9 +1,10 @@
 import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
-import renderFilter from './render-filter.js';
 import CreateFilmCard from './film.js';
 import FilmPopup from './film-popup.js';
+import Statistics from './statistic.js';
+import CreateFilter from './filter.js';
 
-const filterElements = [
+const filtersData = [
   {
     id: `AllFilms`,
     caption: `All movies`,
@@ -33,15 +34,14 @@ const filterElements = [
   }
 ];
 
-const removeFilters = () => {
+const unrenderFilters = () => {
   let filterArray = FILTERS_AREA.querySelectorAll(`.main-navigation__item`);
   filterArray.forEach((item) => {
     FILTERS_AREA.removeChild(item);
   });
 };
 
-removeFilters();
-renderFilter(filterElements);
+unrenderFilters();
 
 const getRandomComment = (count) => {
   const EmojiList = [`sleeping`, `neutral-face`, `grinning`];
@@ -86,6 +86,7 @@ const mockDate = (count) => {
   const mockArray = [];
   for (let i = 0; i < count; i++) {
     const filmExample = {
+      id: i,
       filmTitle: films[Math.floor(Math.random() * films.length)],
       originalTitle: `MOCK ORIGINAL TITLE`,
       actors: new Set([
@@ -141,7 +142,11 @@ const renderFilmCard = (data, area) => {
   for (let i = 0; i < filmCards.length; i++) {
     let filmCard = filmCards[i];
     let filmPopupElement = filmPopupCards[i];
+    let dataId = null;
 
+    filmCard.getId = (id) => {
+      dataId = id;
+    };
 
     area.appendChild(filmCard.render());
 
@@ -150,21 +155,54 @@ const renderFilmCard = (data, area) => {
     };
 
     filmCard.onMarkAsWatched = (state) => {
-      data[i].isAlreadyWatched = state;
-      filmPopupElement.update(data[i]);
+      data[dataId].isAlreadyWatched = state;
+
+      const filterIndex = filtersData.findIndex((it) => it.id === `HistoryFilms`);
+      if (state) {
+        filtersData[filterIndex].amount++;
+      } else {
+        filtersData[filterIndex].amount--;
+      }
+
+      filmPopupElement.update(data[dataId]);
       filmCard.reRender();
+
+      removeFilters(filtersArray);
+      renderFilters(filtersData);
     };
 
     filmCard.onAddToFavorite = (state) => {
-      data[i].isFavorite = state;
-      filmPopupElement.update(data[i]);
+      data[dataId].isFavorite = state;
+
+      const filterIndex = filtersData.findIndex((it) => it.id === `FavoritesFilms`);
+      if (state) {
+        filtersData[filterIndex].amount++;
+      } else {
+        filtersData[filterIndex].amount--;
+      }
+
+      filmPopupElement.update(data[dataId]);
       filmCard.reRender();
+
+      removeFilters(filtersArray);
+      renderFilters(filtersData);
     };
 
     filmCard.onAddToWatchList = (state) => {
-      data[i].isWatchList = state;
-      filmPopupElement.update(data[i]);
+      data[dataId].isWatchList = state;
+
+      const filterIndex = filtersData.findIndex((it) => it.id === `WatchlistFilms`);
+      if (state) {
+        filtersData[filterIndex].amount++;
+      } else {
+        filtersData[filterIndex].amount--;
+      }
+
+      filmPopupElement.update(data[dataId]);
       filmCard.reRender();
+
+      removeFilters(filtersArray);
+      renderFilters(filtersData);
     };
 
     filmPopupElement.onClose = () => {
@@ -172,10 +210,10 @@ const renderFilmCard = (data, area) => {
     };
 
     filmPopupElement.onSubmit = (newObject) => {
-      data[i].isAlreadyWatched = newObject.isAlreadyWatched;
-      data[i].isFavorite = newObject.isFavorite;
-      data[i].isWatchList = newObject.isWatchList;
-      filmCard.update(data[i]);
+      data[dataId].isAlreadyWatched = newObject.isAlreadyWatched;
+      data[dataId].isFavorite = newObject.isFavorite;
+      data[dataId].isWatchList = newObject.isWatchList;
+      filmCard.update(data[dataId]);
       filmCard.reRender();
     };
   }
@@ -192,37 +230,119 @@ const removeFilmCards = () => {
 
 renderFilmCard(mockData, FILMS_LIST_MAIN);
 
+const filtersArray = [];
 
-FILTERS_AREA.querySelectorAll(`.main-navigation__item`).forEach((item) => {
-  item.addEventListener(`click`, (filterName) => {
-    switch (filterName.srcElement.id) {
-      case `allfilms`:
-        removeFilmCards();
-        createCardsData(mockData);
-        renderFilmCard(mockData, FILMS_LIST_MAIN);
-        return;
+const renderFilters = (data) => {
+  for (let i = 0; i < data.length; i++) {
+    filtersArray[i] = new CreateFilter(data[i]);
+  }
 
-      case `watchlistfilms`:
-        const watchListFiltered = mockData.filter((it) => it.isWatchList === true);
-        removeFilmCards();
-        createCardsData(watchListFiltered);
-        renderFilmCard(mockData, FILMS_LIST_MAIN);
-        return;
+  const filterAll = filtersArray[data.findIndex((it) => it.id === `AllFilms`)];
+  const filterWatchlistFilms = filtersArray[data.findIndex((it) => it.id === `WatchlistFilms`)];
+  const filterHistoryFilms = filtersArray[data.findIndex((it) => it.id === `HistoryFilms`)];
+  const filterFavoritesFilms = filtersArray[data.findIndex((it) => it.id === `FavoritesFilms`)];
+  const filterStats = filtersArray[data.findIndex((it) => it.id === `Stats`)];
 
-      case `historyfilms`:
-        const historyFiltered = mockData.filter((it) => it.isAlreadyWatched === true);
-        removeFilmCards();
-        createCardsData(historyFiltered);
-        renderFilmCard(mockData, FILMS_LIST_MAIN);
-        return;
+  FILTERS_AREA.appendChild(filterAll.render());
+  FILTERS_AREA.appendChild(filterWatchlistFilms.render());
+  FILTERS_AREA.appendChild(filterHistoryFilms.render());
+  FILTERS_AREA.appendChild(filterFavoritesFilms.render());
+  FILTERS_AREA.appendChild(filterStats.render());
 
-      case `favoritesfilms`:
 
-        const favoriteFiltered = mockData.filter((it) => it.isFavorite === true);
-        removeFilmCards();
-        createCardsData(favoriteFiltered);
-        renderFilmCard(mockData, FILMS_LIST_MAIN);
-        return;
-    }
+  const deActivateAll = () => {
+    data.forEach((it) =>{
+      it.active = false;
+    });
+    filterHistoryFilms.deActivate();
+    filterAll.deActivate();
+    filterWatchlistFilms.deActivate();
+    filterFavoritesFilms.deActivate();
+    filterStats.deActivate();
+  };
+
+  const updateAll = () => {
+    filterAll.reRender();
+    filterAll.unrender();
+    FILTERS_AREA.appendChild(filterAll.render());
+
+    filterWatchlistFilms.reRender();
+    filterWatchlistFilms.unrender();
+    FILTERS_AREA.appendChild(filterWatchlistFilms.render());
+
+    filterHistoryFilms.reRender();
+    filterHistoryFilms.unrender();
+    FILTERS_AREA.appendChild(filterHistoryFilms.render());
+
+    filterFavoritesFilms.reRender();
+    filterFavoritesFilms.unrender();
+    FILTERS_AREA.appendChild(filterFavoritesFilms.render());
+
+    filterStats.reRender();
+    filterStats.unrender();
+    FILTERS_AREA.appendChild(filterStats.render());
+  };
+
+  filterAll.onFilterClick = () => {
+    removeFilmCards();
+    createCardsData(mockData);
+    renderFilmCard(mockData, FILMS_LIST_MAIN);
+    deActivateAll();
+    filterAll.activate();
+    data[data.findIndex((it) => it.id === `AllFilms`)].active = true;
+    updateAll();
+  };
+
+  filterWatchlistFilms.onFilterClick = () => {
+    const watchListFiltered = mockData.filter((it) => it.isWatchList === true);
+    removeFilmCards();
+    createCardsData(watchListFiltered);
+    renderFilmCard(mockData, FILMS_LIST_MAIN);
+    deActivateAll();
+    data[data.findIndex((it) => it.id === `WatchlistFilms`)].active = true;
+    filterWatchlistFilms.activate();
+    updateAll();
+  };
+
+  filterHistoryFilms.onFilterClick = () => {
+    const historyFiltered = mockData.filter((it) => it.isAlreadyWatched === true);
+    removeFilmCards();
+    createCardsData(historyFiltered);
+    renderFilmCard(mockData, FILMS_LIST_MAIN);
+    deActivateAll();
+    data[data.findIndex((it) => it.id === `HistoryFilms`)].active = true;
+    filterHistoryFilms.activate();
+    updateAll();
+  };
+
+  filterFavoritesFilms.onFilterClick = () => {
+    const favoriteFiltered = mockData.filter((it) => it.isFavorite === true);
+    removeFilmCards();
+    createCardsData(favoriteFiltered);
+    renderFilmCard(mockData, FILMS_LIST_MAIN);
+    deActivateAll();
+    data[data.findIndex((it) => it.id === `FavoritesFilms`)].active = true;
+    filterFavoritesFilms.activate();
+    updateAll();
+  };
+
+  filterStats.onFilterClick = () => {
+    deActivateAll();
+    filterStats.activate();
+    updateAll();
+  };
+};
+
+renderFilters(filtersData);
+
+const removeFilters = (filters) => {
+  filters.forEach((it) =>{
+    it.unrender();
   });
-});
+};
+
+const getStatisticData = (data) => {
+
+};
+
+getStatisticData(mockData);

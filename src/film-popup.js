@@ -379,10 +379,8 @@ export default class FilmPopup extends Component {
 
   update(upData) {
     this._userRate = upData.userRate;
-    if (upData.comment) {
-      if (upData.comment.text.length) {
-        this._comments.push(upData.comment);
-      }
+    if (upData.comment && upData.comment.text.length) {
+      this._comments.push(upData.comment);
     }
     this._isAlreadyWatched = upData.isAlreadyWatched;
     this._isFavorite = upData.isFavorite;

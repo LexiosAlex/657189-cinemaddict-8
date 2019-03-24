@@ -1,7 +1,7 @@
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-const statisticCtx = document.querySelector(`.statistic__chart`);
+const statisticCtx = document.querySelector(`.statistic__chart`).getContext('2d');
 const BAR_HEIGHT = 50;
 statisticCtx.height = BAR_HEIGHT * 5;
 const myChart = new Chart(statisticCtx, {
