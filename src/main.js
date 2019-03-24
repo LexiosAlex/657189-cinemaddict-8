@@ -1,8 +1,10 @@
 import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
 import CreateFilmCard from './film.js';
 import FilmPopup from './film-popup.js';
-import Statistics from './statistic.js';
+import statistics from './statistic.js';
 import CreateFilter from './filter.js';
+
+statistics();
 
 const filtersData = [
   {
@@ -341,8 +343,3 @@ const removeFilters = (filters) => {
   });
 };
 
-const getStatisticData = (data) => {
-
-};
-
-getStatisticData(mockData);
