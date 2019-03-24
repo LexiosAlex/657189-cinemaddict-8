@@ -1,10 +1,8 @@
 import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
 import CreateFilmCard from './film.js';
 import FilmPopup from './film-popup.js';
-// import statistics from './statistic.js';
+import Statistics from './statistic.js';
 import CreateFilter from './filter.js';
-
-// statistics();
 
 const filtersData = [
   {
@@ -171,6 +169,7 @@ const renderFilmCard = (data, area) => {
 
       removeFilters(filtersArray);
       renderFilters(filtersData);
+      getStatsData();
     };
 
     filmCard.onAddToFavorite = (state) => {
@@ -234,10 +233,28 @@ renderFilmCard(mockData, FILMS_LIST_MAIN);
 
 const filtersArray = [];
 
+const filmsArea = document.querySelector(`.films`);
+const statisticArea = document.querySelector(`.statistic`);
+
 const renderFilters = (data) => {
   for (let i = 0; i < data.length; i++) {
     filtersArray[i] = new CreateFilter(data[i]);
   }
+
+  const showFilms = () => {
+    if (filmsArea.classList.contains(`visually-hidden`)) {
+      filmsArea.classList.remove(`visually-hidden`);
+      statisticArea.classList.add(`visually-hidden`);
+    }
+  };
+
+  const hideFilms = () => {
+    if (statisticArea.classList.contains(`visually-hidden`)) {
+      filmsArea.classList.add(`visually-hidden`);
+      statisticArea.classList.remove(`visually-hidden`);
+    }
+  };
+
 
   const filterAll = filtersArray[data.findIndex((it) => it.id === `AllFilms`)];
   const filterWatchlistFilms = filtersArray[data.findIndex((it) => it.id === `WatchlistFilms`)];
@@ -286,6 +303,7 @@ const renderFilters = (data) => {
   };
 
   filterAll.onFilterClick = () => {
+    showFilms();
     removeFilmCards();
     createCardsData(mockData);
     renderFilmCard(mockData, FILMS_LIST_MAIN);
@@ -296,6 +314,7 @@ const renderFilters = (data) => {
   };
 
   filterWatchlistFilms.onFilterClick = () => {
+    showFilms();
     const watchListFiltered = mockData.filter((it) => it.isWatchList === true);
     removeFilmCards();
     createCardsData(watchListFiltered);
@@ -307,6 +326,7 @@ const renderFilters = (data) => {
   };
 
   filterHistoryFilms.onFilterClick = () => {
+    showFilms();
     const historyFiltered = mockData.filter((it) => it.isAlreadyWatched === true);
     removeFilmCards();
     createCardsData(historyFiltered);
@@ -318,6 +338,7 @@ const renderFilters = (data) => {
   };
 
   filterFavoritesFilms.onFilterClick = () => {
+    showFilms();
     const favoriteFiltered = mockData.filter((it) => it.isFavorite === true);
     removeFilmCards();
     createCardsData(favoriteFiltered);
@@ -329,9 +350,12 @@ const renderFilters = (data) => {
   };
 
   filterStats.onFilterClick = () => {
+    hideFilms();
     deActivateAll();
     filterStats.activate();
     updateAll();
+    unrenderStatsComponent();
+    renderStatsComponent();
   };
 };
 
@@ -343,3 +367,36 @@ const removeFilters = (filters) => {
   });
 };
 
+let statisticComponent = null;
+
+const getStatsData = () => {
+  const statsData = {};
+  const historyArray = mockData.filter((it) => it.isAlreadyWatched === true);
+
+  let totalMins = 0;
+
+  historyArray.forEach((it) =>{
+    totalMins += it.duration;
+  });
+
+  statsData.genres = null;
+  statsData.totaltime = totalMins;
+  statsData.moviesCount = historyArray.length;
+
+  return statsData;
+};
+
+const renderStatsComponent = () => {
+  const statsData = getStatsData();
+  statisticComponent = new Statistics(statsData);
+  statisticArea.appendChild(statisticComponent.render());
+  statisticComponent.statisticDiogram();
+};
+
+renderStatsComponent();
+
+const unrenderStatsComponent = () => {
+  if (statisticComponent) {
+    statisticComponent.unrender();
+  }
+};
