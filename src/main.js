@@ -281,23 +281,18 @@ const renderFilters = (data) => {
   };
 
   const updateAll = () => {
-    filterAll.reRender();
     filterAll.unrender();
     FILTERS_AREA.appendChild(filterAll.render());
 
-    filterWatchlistFilms.reRender();
     filterWatchlistFilms.unrender();
     FILTERS_AREA.appendChild(filterWatchlistFilms.render());
 
-    filterHistoryFilms.reRender();
     filterHistoryFilms.unrender();
     FILTERS_AREA.appendChild(filterHistoryFilms.render());
 
-    filterFavoritesFilms.reRender();
     filterFavoritesFilms.unrender();
     FILTERS_AREA.appendChild(filterFavoritesFilms.render());
 
-    filterStats.reRender();
     filterStats.unrender();
     FILTERS_AREA.appendChild(filterStats.render());
   };
@@ -379,7 +374,42 @@ const getStatsData = () => {
     totalMins += it.duration;
   });
 
-  statsData.genres = null;
+  let genresSet = new Set([]);
+
+  historyArray.forEach((it) => {
+    it.genres.forEach((genre) => {
+      genresSet.add(genre);
+    });
+  });
+
+  let genresArray = [];
+  genresSet.forEach((setGenre) =>{
+    let genreObject = {};
+    genreObject.genre = setGenre;
+    genreObject.count = 0;
+    historyArray.filter((it) => {
+      it.genres.forEach((elem) => {
+        if (setGenre === elem) {
+          genreObject.count++;
+        }
+      });
+    });
+    genresArray.push(genreObject);
+  });
+
+  genresArray.sort((a, b) => {
+    return a.count - b.count;
+  });
+
+  let genres = [];
+  let genresCount = [];
+  genresArray.reverse().forEach((it) => {
+    genres.push(it.genre);
+    genresCount.push(it.count);
+  });
+
+  statsData.genresCount = genresCount;
+  statsData.genres = genres;
   statsData.totaltime = totalMins;
   statsData.moviesCount = historyArray.length;
 

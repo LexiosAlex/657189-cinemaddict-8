@@ -7,6 +7,7 @@ export default class Statistic extends Component {
     super();
 
     this._totalTime = data.totaltime;
+    this._genresCount = data.genresCount;
     this._genres = data.genres;
     this._moviesCount = data.moviesCount;
 
@@ -48,7 +49,7 @@ export default class Statistic extends Component {
         </li>
         <li class="statistic__text-item">
           <h4 class="statistic__item-title">Top genre</h4>
-          <p class="statistic__item-text">Sci-Fi</p>
+          <p class="statistic__item-text">${this._genres[0]}</p>
         </li>
       </ul>
 
@@ -66,9 +67,9 @@ export default class Statistic extends Component {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
-        labels: [`Sci-Fi`, `Animation`, `Fantasy`, `Comedy`, `TV Series`],
+        labels: this._genres,
         datasets: [{
-          data: [11, 8, 7, 4, 3],
+          data: this._genresCount,
           backgroundColor: `#ffe800`,
           hoverBackgroundColor: `#ffe800`,
           anchor: `start`
