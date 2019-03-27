@@ -31,15 +31,10 @@ export default class Film extends Component {
     this._onWatchListButtonClick = this._onWatchListButtonClick.bind(this);
     this._onFavoriteButtonClick = this._onFavoriteButtonClick.bind(this);
     this._onWatchedButtonClick = this._onWatchedButtonClick.bind(this);
-    this._onAnyBtnClick = this._onAnyBtnClick.bind(this);
   }
 
   set getId(fn) {
     this._getId = fn;
-  }
-
-  _onAnyBtnClick() {
-    return typeof this._getId === `function` && this._getId(this._id);
   }
 
   set onAddToFavorite(fn) {
@@ -49,9 +44,10 @@ export default class Film extends Component {
   _onFavoriteButtonClick(evt) {
     evt.preventDefault();
     this._isFavorite = !this._isFavorite;
-    const FavoriteState = this._isFavorite;
-    if (typeof this._onAddToFavorite === `function`) {
-      this._onAddToFavorite(FavoriteState);
+    const favoriteState = this._isFavorite;
+    if (typeof this._onAddToFavorite === `function` && typeof this._getId === `function`) {
+      this._getId(this._id);
+      this._onAddToFavorite(favoriteState);
     }
   }
 
@@ -62,9 +58,10 @@ export default class Film extends Component {
   _onWatchListButtonClick(evt) {
     evt.preventDefault();
     this._isWatchList = !this._isWatchList;
-    const WatchListState = this._isWatchList;
-    if (typeof this._onAddToWatchList === `function`) {
-      this._onAddToWatchList(WatchListState);
+    const watchListState = this._isWatchList;
+    if (typeof this._onAddToWatchList === `function` && typeof this._getId === `function`) {
+      this._getId(this._id);
+      this._onAddToWatchList(watchListState);
     }
   }
 
@@ -76,7 +73,8 @@ export default class Film extends Component {
     evt.preventDefault();
     this._isAlreadyWatched = !this._isAlreadyWatched;
     const wathchedState = this._isAlreadyWatched;
-    if (typeof this._onMarkAsWatched === `function`) {
+    if (typeof this._onMarkAsWatched === `function` && typeof this._getId === `function`) {
+      this._getId(this._id);
       this._onMarkAsWatched(wathchedState);
     }
   }
@@ -87,7 +85,10 @@ export default class Film extends Component {
 
   _onCommentsButtonClick(evt) {
     evt.preventDefault();
-    return typeof this._onComments === `function` && this._onComments();
+    if (typeof this._onComments === `function` && typeof this._getId === `function`) {
+      this._getId(this._id);
+      this._onComments();
+    }
   }
 
   get template() {
@@ -172,15 +173,6 @@ export default class Film extends Component {
 
   bind() {
     this._element.querySelector(`.film-card__comments`)
-      .addEventListener(`click`, this._onAnyBtnClick);
-    this._element.querySelector(`.film-card__controls-item--add-to-watchlist`)
-      .addEventListener(`click`, this._onAnyBtnClick);
-    this._element.querySelector(`.film-card__controls-item--mark-as-watched`)
-      .addEventListener(`click`, this._onAnyBtnClick);
-    this._element.querySelector(`.film-card__controls-item--favorite`)
-      .addEventListener(`click`, this._onAnyBtnClick);
-
-    this._element.querySelector(`.film-card__comments`)
       .addEventListener(`click`, this._onCommentsButtonClick);
     this._element.querySelector(`.film-card__controls-item--add-to-watchlist`)
       .addEventListener(`click`, this._onWatchListButtonClick);
@@ -191,15 +183,6 @@ export default class Film extends Component {
   }
 
   undibind() {
-    this._element.querySelector(`.film-card__comments`)
-      .removeEventListener(`click`, this._onAnyBtnClick);
-    this._element.querySelector(`.film-card__controls-item--add-to-watchlist`)
-      .removeEventListener(`click`, this._onAnyBtnClick);
-    this._element.querySelector(`.film-card__controls-item--mark-as-watched`)
-      .removeEventListener(`click`, this._onAnyBtnClick);
-    this._element.querySelector(`.film-card__controls-item--favorite`)
-      .removeEventListener(`click`, this._onAnyBtnClick);
-
     this._element.querySelector(`.film-card__comments`)
       .removeEventListener(`click`, this._onCommentsButtonClick);
     this._element.querySelector(`.film-card__controls-item--add-to-watchlist`)
