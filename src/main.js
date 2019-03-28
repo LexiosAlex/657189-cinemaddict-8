@@ -1,8 +1,8 @@
 import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
-import CreateFilmCard from './film.js';
+import Film from './film.js';
 import FilmPopup from './film-popup.js';
 import Statistics from './statistic.js';
-import CreateFilter from './filter.js';
+import Filter from './filter.js';
 
 const filtersData = [
   {
@@ -128,15 +128,23 @@ let filmPopupCards = [];
 const createCardsData = (data) => {
   filmCards = [];
   filmPopupCards = [];
-  if (data.length !== 0) {
-    for (let i = 0; i < data.length; i++) {
-      filmCards[i] = new CreateFilmCard(data[i]);
-      filmPopupCards[i] = new FilmPopup(data[i]);
-    }
+  for (let i = 0; i < data.length; i++) {
+    filmCards[i] = new Film(data[i]);
+    filmPopupCards[i] = new FilmPopup(data[i]);
   }
 };
 
 createCardsData(mockData);
+
+
+const updateFiltersData = (filterId, state) => {
+  const filterIndex = filtersData.findIndex((it) => it.id === filterId);
+  if (state) {
+    filtersData[filterIndex].amount++;
+  } else {
+    filtersData[filterIndex].amount--;
+  }
+};
 
 const renderFilmCard = (data, area) => {
   for (let i = 0; i < filmCards.length; i++) {
@@ -144,65 +152,50 @@ const renderFilmCard = (data, area) => {
     let filmPopupElement = filmPopupCards[i];
     let dataId = null;
 
-    filmCard.getId = (id) => {
-      dataId = id;
-    };
-
     area.appendChild(filmCard.render());
 
-    filmCard.onComments = () => {
+    filmCard.onComments = (id) => {
+      dataId = id;
       document.body.appendChild(filmPopupElement.render());
     };
 
-    filmCard.onMarkAsWatched = (state) => {
+    filmCard.onMarkAsWatched = (state, id) => {
+      dataId = id;
       data[dataId].isAlreadyWatched = state;
 
-      const filterIndex = filtersData.findIndex((it) => it.id === `HistoryFilms`);
-      if (state) {
-        filtersData[filterIndex].amount++;
-      } else {
-        filtersData[filterIndex].amount--;
-      }
+      updateFiltersData(`HistoryFilms`, state);
 
       filmPopupElement.update(data[dataId]);
       filmCard.reRender();
 
-      removeFilters(filtersArray);
+      removeFilters(filters);
       renderFilters(filtersData);
       getStatsData();
     };
 
-    filmCard.onAddToFavorite = (state) => {
+    filmCard.onAddToFavorite = (state, id) => {
+      dataId = id;
       data[dataId].isFavorite = state;
 
-      const filterIndex = filtersData.findIndex((it) => it.id === `FavoritesFilms`);
-      if (state) {
-        filtersData[filterIndex].amount++;
-      } else {
-        filtersData[filterIndex].amount--;
-      }
+      updateFiltersData(`FavoritesFilms`, state);
 
       filmPopupElement.update(data[dataId]);
       filmCard.reRender();
 
-      removeFilters(filtersArray);
+      removeFilters(filters);
       renderFilters(filtersData);
     };
 
-    filmCard.onAddToWatchList = (state) => {
+    filmCard.onAddToWatchList = (state, id) => {
+      dataId = id;
       data[dataId].isWatchList = state;
 
-      const filterIndex = filtersData.findIndex((it) => it.id === `WatchlistFilms`);
-      if (state) {
-        filtersData[filterIndex].amount++;
-      } else {
-        filtersData[filterIndex].amount--;
-      }
+      updateFiltersData(`WatchlistFilms`, state);
 
       filmPopupElement.update(data[dataId]);
       filmCard.reRender();
 
-      removeFilters(filtersArray);
+      removeFilters(filters);
       renderFilters(filtersData);
     };
 
@@ -210,12 +203,31 @@ const renderFilmCard = (data, area) => {
       filmPopupElement.unrender();
     };
 
-    filmPopupElement.onSubmit = (newObject) => {
+    filmPopupElement.onSubmit = (newObject, id) => {
+      dataId = id;
+      const watchedState = data[dataId].isAlreadyWatched;
+      const favoriteState = data[dataId].isFavorite;
+      const watchlistState = data[dataId].isWatchList;
+
       data[dataId].isAlreadyWatched = newObject.isAlreadyWatched;
       data[dataId].isFavorite = newObject.isFavorite;
       data[dataId].isWatchList = newObject.isWatchList;
+
+      if (!watchedState === data[dataId].isAlreadyWatched) {
+        updateFiltersData(`HistoryFilms`, newObject.isAlreadyWatched);
+      }
+      if (!favoriteState === data[dataId].isFavorite) {
+        updateFiltersData(`FavoritesFilms`, newObject.isFavorite);
+      }
+      if (!watchlistState === data[dataId].isWatchList) {
+        updateFiltersData(`WatchlistFilms`, newObject.isWatchList);
+      }
+
       filmCard.update(data[dataId]);
       filmCard.reRender();
+
+      removeFilters(filters);
+      renderFilters(filtersData);
     };
   }
 };
@@ -231,36 +243,35 @@ const removeFilmCards = () => {
 
 renderFilmCard(mockData, FILMS_LIST_MAIN);
 
-const filtersArray = [];
+const filters = [];
 
 const filmsArea = document.querySelector(`.films`);
 const statisticArea = document.querySelector(`.statistic`);
 
+const showFilms = () => {
+  if (filmsArea.classList.contains(`visually-hidden`)) {
+    filmsArea.classList.remove(`visually-hidden`);
+    statisticArea.classList.add(`visually-hidden`);
+  }
+};
+
+const hideFilms = () => {
+  if (statisticArea.classList.contains(`visually-hidden`)) {
+    filmsArea.classList.add(`visually-hidden`);
+    statisticArea.classList.remove(`visually-hidden`);
+  }
+};
+
 const renderFilters = (data) => {
   for (let i = 0; i < data.length; i++) {
-    filtersArray[i] = new CreateFilter(data[i]);
+    filters[i] = new Filter(data[i]);
   }
 
-  const showFilms = () => {
-    if (filmsArea.classList.contains(`visually-hidden`)) {
-      filmsArea.classList.remove(`visually-hidden`);
-      statisticArea.classList.add(`visually-hidden`);
-    }
-  };
-
-  const hideFilms = () => {
-    if (statisticArea.classList.contains(`visually-hidden`)) {
-      filmsArea.classList.add(`visually-hidden`);
-      statisticArea.classList.remove(`visually-hidden`);
-    }
-  };
-
-
-  const filterAll = filtersArray[data.findIndex((it) => it.id === `AllFilms`)];
-  const filterWatchlistFilms = filtersArray[data.findIndex((it) => it.id === `WatchlistFilms`)];
-  const filterHistoryFilms = filtersArray[data.findIndex((it) => it.id === `HistoryFilms`)];
-  const filterFavoritesFilms = filtersArray[data.findIndex((it) => it.id === `FavoritesFilms`)];
-  const filterStats = filtersArray[data.findIndex((it) => it.id === `Stats`)];
+  const filterAll = filters[data.findIndex((it) => it.id === `AllFilms`)];
+  const filterWatchlistFilms = filters[data.findIndex((it) => it.id === `WatchlistFilms`)];
+  const filterHistoryFilms = filters[data.findIndex((it) => it.id === `HistoryFilms`)];
+  const filterFavoritesFilms = filters[data.findIndex((it) => it.id === `FavoritesFilms`)];
+  const filterStats = filters[data.findIndex((it) => it.id === `Stats`)];
 
   FILTERS_AREA.appendChild(filterAll.render());
   FILTERS_AREA.appendChild(filterWatchlistFilms.render());
@@ -297,6 +308,18 @@ const renderFilters = (data) => {
     FILTERS_AREA.appendChild(filterStats.render());
   };
 
+  const filterActivate = (filterName, dataFilter, filterId, stateName) => {
+    showFilms();
+    const filteredArray = mockData.filter((it) => it[stateName] === true);
+    removeFilmCards();
+    createCardsData(filteredArray);
+    renderFilmCard(mockData, FILMS_LIST_MAIN);
+    deActivateAll();
+    dataFilter[dataFilter.findIndex((it) => it.id === filterId)].active = true;
+    filterName.activate();
+    updateAll();
+  };
+
   filterAll.onFilterClick = () => {
     showFilms();
     removeFilmCards();
@@ -309,39 +332,15 @@ const renderFilters = (data) => {
   };
 
   filterWatchlistFilms.onFilterClick = () => {
-    showFilms();
-    const watchListFiltered = mockData.filter((it) => it.isWatchList === true);
-    removeFilmCards();
-    createCardsData(watchListFiltered);
-    renderFilmCard(mockData, FILMS_LIST_MAIN);
-    deActivateAll();
-    data[data.findIndex((it) => it.id === `WatchlistFilms`)].active = true;
-    filterWatchlistFilms.activate();
-    updateAll();
+    filterActivate(filterWatchlistFilms, data, `WatchlistFilms`, `isWatchList`);
   };
 
   filterHistoryFilms.onFilterClick = () => {
-    showFilms();
-    const historyFiltered = mockData.filter((it) => it.isAlreadyWatched === true);
-    removeFilmCards();
-    createCardsData(historyFiltered);
-    renderFilmCard(mockData, FILMS_LIST_MAIN);
-    deActivateAll();
-    data[data.findIndex((it) => it.id === `HistoryFilms`)].active = true;
-    filterHistoryFilms.activate();
-    updateAll();
+    filterActivate(filterHistoryFilms, data, `HistoryFilms`, `isAlreadyWatched`);
   };
 
   filterFavoritesFilms.onFilterClick = () => {
-    showFilms();
-    const favoriteFiltered = mockData.filter((it) => it.isFavorite === true);
-    removeFilmCards();
-    createCardsData(favoriteFiltered);
-    renderFilmCard(mockData, FILMS_LIST_MAIN);
-    deActivateAll();
-    data[data.findIndex((it) => it.id === `FavoritesFilms`)].active = true;
-    filterFavoritesFilms.activate();
-    updateAll();
+    filterActivate(filterFavoritesFilms, data, `FavoritesFilms`, `isFavorite`);
   };
 
   filterStats.onFilterClick = () => {
@@ -356,8 +355,8 @@ const renderFilters = (data) => {
 
 renderFilters(filtersData);
 
-const removeFilters = (filters) => {
-  filters.forEach((it) =>{
+const removeFilters = (filtersArr) => {
+  filtersArr.forEach((it) =>{
     it.unrender();
   });
 };
@@ -398,7 +397,7 @@ const getStatsData = () => {
   });
 
   genresArray.sort((a, b) => {
-    return a.count - b.count;
+    return b.count - a.count;
   });
 
   let genres = [];

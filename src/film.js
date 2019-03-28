@@ -21,7 +21,6 @@ export default class Film extends Component {
 
     this._element = null;
     this._onComments = null;
-    this._getId = null;
 
     this._onAddToWatchList = null;
     this._onAddToFavorite = null;
@@ -33,9 +32,6 @@ export default class Film extends Component {
     this._onWatchedButtonClick = this._onWatchedButtonClick.bind(this);
   }
 
-  set getId(fn) {
-    this._getId = fn;
-  }
 
   set onAddToFavorite(fn) {
     this._onAddToFavorite = fn;
@@ -45,9 +41,8 @@ export default class Film extends Component {
     evt.preventDefault();
     this._isFavorite = !this._isFavorite;
     const favoriteState = this._isFavorite;
-    if (typeof this._onAddToFavorite === `function` && typeof this._getId === `function`) {
-      this._getId(this._id);
-      this._onAddToFavorite(favoriteState);
+    if (typeof this._onAddToFavorite === `function`) {
+      this._onAddToFavorite(favoriteState, this._id);
     }
   }
 
@@ -59,9 +54,8 @@ export default class Film extends Component {
     evt.preventDefault();
     this._isWatchList = !this._isWatchList;
     const watchListState = this._isWatchList;
-    if (typeof this._onAddToWatchList === `function` && typeof this._getId === `function`) {
-      this._getId(this._id);
-      this._onAddToWatchList(watchListState);
+    if (typeof this._onAddToWatchList === `function`) {
+      this._onAddToWatchList(watchListState, this._id);
     }
   }
 
@@ -73,9 +67,8 @@ export default class Film extends Component {
     evt.preventDefault();
     this._isAlreadyWatched = !this._isAlreadyWatched;
     const wathchedState = this._isAlreadyWatched;
-    if (typeof this._onMarkAsWatched === `function` && typeof this._getId === `function`) {
-      this._getId(this._id);
-      this._onMarkAsWatched(wathchedState);
+    if (typeof this._onMarkAsWatched === `function`) {
+      this._onMarkAsWatched(wathchedState, this._id);
     }
   }
 
@@ -85,9 +78,8 @@ export default class Film extends Component {
 
   _onCommentsButtonClick(evt) {
     evt.preventDefault();
-    if (typeof this._onComments === `function` && typeof this._getId === `function`) {
-      this._getId(this._id);
-      this._onComments();
+    if (typeof this._onComments === `function`) {
+      this._onComments(this._id);
     }
   }
 

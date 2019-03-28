@@ -59,7 +59,7 @@ export default class Statistic extends Component {
     </div>`.trim();
   }
 
-  statisticDiogram() {
+  statisticDiagram() {
     const statisticCtx = this._element.querySelector(`.statistic__chart`).getContext(`2d`);
     const BAR_HEIGHT = 50;
     statisticCtx.height = BAR_HEIGHT * 5;
@@ -119,6 +119,7 @@ export default class Statistic extends Component {
         }
       }
     });
+    return myChart;
   }
 }
 
