@@ -150,22 +150,22 @@ const renderFilmCard = (data, area) => {
   for (let i = 0; i < filmCards.length; i++) {
     let filmCard = filmCards[i];
     let filmPopupElement = filmPopupCards[i];
-    let dataId = null;
+    let id = null;
 
     area.appendChild(filmCard.render());
 
-    filmCard.onComments = (id) => {
-      dataId = id;
+    filmCard.onComments = (dataId) => {
+      id = dataId;
       document.body.appendChild(filmPopupElement.render());
     };
 
-    filmCard.onMarkAsWatched = (state, id) => {
-      dataId = id;
-      data[dataId].isAlreadyWatched = state;
+    filmCard.onMarkAsWatched = (state, dataId) => {
+      id = dataId;
+      data[id].isAlreadyWatched = state;
 
       updateFiltersData(`HistoryFilms`, state);
 
-      filmPopupElement.update(data[dataId]);
+      filmPopupElement.update(data[id]);
       filmCard.reRender();
 
       removeFilters(filters);
@@ -173,26 +173,26 @@ const renderFilmCard = (data, area) => {
       getStatsData();
     };
 
-    filmCard.onAddToFavorite = (state, id) => {
-      dataId = id;
-      data[dataId].isFavorite = state;
+    filmCard.onAddToFavorite = (state, dataId) => {
+      id = dataId;
+      data[id].isFavorite = state;
 
       updateFiltersData(`FavoritesFilms`, state);
 
-      filmPopupElement.update(data[dataId]);
+      filmPopupElement.update(data[id]);
       filmCard.reRender();
 
       removeFilters(filters);
       renderFilters(filtersData);
     };
 
-    filmCard.onAddToWatchList = (state, id) => {
-      dataId = id;
-      data[dataId].isWatchList = state;
+    filmCard.onAddToWatchList = (state, dataId) => {
+      id = dataId;
+      data[id].isWatchList = state;
 
       updateFiltersData(`WatchlistFilms`, state);
 
-      filmPopupElement.update(data[dataId]);
+      filmPopupElement.update(data[id]);
       filmCard.reRender();
 
       removeFilters(filters);
@@ -203,27 +203,27 @@ const renderFilmCard = (data, area) => {
       filmPopupElement.unrender();
     };
 
-    filmPopupElement.onSubmit = (newObject, id) => {
-      dataId = id;
-      const watchedState = data[dataId].isAlreadyWatched;
-      const favoriteState = data[dataId].isFavorite;
-      const watchlistState = data[dataId].isWatchList;
+    filmPopupElement.onSubmit = (newObject, dataId) => {
+      id = dataId;
+      const watchedState = data[id].isAlreadyWatched;
+      const favoriteState = data[id].isFavorite;
+      const watchlistState = data[id].isWatchList;
 
-      data[dataId].isAlreadyWatched = newObject.isAlreadyWatched;
-      data[dataId].isFavorite = newObject.isFavorite;
-      data[dataId].isWatchList = newObject.isWatchList;
+      data[id].isAlreadyWatched = newObject.isAlreadyWatched;
+      data[id].isFavorite = newObject.isFavorite;
+      data[id].isWatchList = newObject.isWatchList;
 
-      if (!watchedState === data[dataId].isAlreadyWatched) {
+      if (data[id].isAlreadyWatched === !watchedState) {
         updateFiltersData(`HistoryFilms`, newObject.isAlreadyWatched);
       }
-      if (!favoriteState === data[dataId].isFavorite) {
+      if (data[id].isFavorite === !favoriteState) {
         updateFiltersData(`FavoritesFilms`, newObject.isFavorite);
       }
-      if (!watchlistState === data[dataId].isWatchList) {
+      if (data[id].isWatchList === !watchlistState) {
         updateFiltersData(`WatchlistFilms`, newObject.isWatchList);
       }
 
-      filmCard.update(data[dataId]);
+      filmCard.update(data[id]);
       filmCard.reRender();
 
       removeFilters(filters);
@@ -419,7 +419,7 @@ const renderStatsComponent = () => {
   const statsData = getStatsData();
   statisticComponent = new Statistics(statsData);
   statisticArea.appendChild(statisticComponent.render());
-  statisticComponent.statisticDiogram();
+  statisticComponent.statisticDiagram();
 };
 
 renderStatsComponent();
