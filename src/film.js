@@ -79,7 +79,7 @@ export default class Film extends Component {
   _onCommentsButtonClick(evt) {
     evt.preventDefault();
     if (typeof this._onComments === `function`) {
-      this._onComments(this._id);
+      this._onComments();
     }
   }
 

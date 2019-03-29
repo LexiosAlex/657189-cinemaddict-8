@@ -150,17 +150,14 @@ const renderFilmCard = (data, area) => {
   for (let i = 0; i < filmCards.length; i++) {
     let filmCard = filmCards[i];
     let filmPopupElement = filmPopupCards[i];
-    let id = null;
 
     area.appendChild(filmCard.render());
 
-    filmCard.onComments = (dataId) => {
-      id = dataId;
+    filmCard.onComments = () => {
       document.body.appendChild(filmPopupElement.render());
     };
 
-    filmCard.onMarkAsWatched = (state, dataId) => {
-      id = dataId;
+    filmCard.onMarkAsWatched = (state, id) => {
       data[id].isAlreadyWatched = state;
 
       updateFiltersData(`HistoryFilms`, state);
@@ -173,8 +170,7 @@ const renderFilmCard = (data, area) => {
       getStatsData();
     };
 
-    filmCard.onAddToFavorite = (state, dataId) => {
-      id = dataId;
+    filmCard.onAddToFavorite = (state, id) => {
       data[id].isFavorite = state;
 
       updateFiltersData(`FavoritesFilms`, state);
@@ -186,8 +182,7 @@ const renderFilmCard = (data, area) => {
       renderFilters(filtersData);
     };
 
-    filmCard.onAddToWatchList = (state, dataId) => {
-      id = dataId;
+    filmCard.onAddToWatchList = (state, id) => {
       data[id].isWatchList = state;
 
       updateFiltersData(`WatchlistFilms`, state);
@@ -203,24 +198,18 @@ const renderFilmCard = (data, area) => {
       filmPopupElement.unrender();
     };
 
-    filmPopupElement.onSubmit = (newObject, dataId) => {
-      id = dataId;
-      const watchedState = data[id].isAlreadyWatched;
-      const favoriteState = data[id].isFavorite;
-      const watchlistState = data[id].isWatchList;
-
-      data[id].isAlreadyWatched = newObject.isAlreadyWatched;
-      data[id].isFavorite = newObject.isFavorite;
-      data[id].isWatchList = newObject.isWatchList;
-
-      if (data[id].isAlreadyWatched === !watchedState) {
+    filmPopupElement.onSubmit = (newObject, id) => {
+      if (newObject.isAlreadyWatched !== data[id].isAlreadyWatched) {
         updateFiltersData(`HistoryFilms`, newObject.isAlreadyWatched);
+        data[id].isAlreadyWatched = newObject.isAlreadyWatched;
       }
-      if (data[id].isFavorite === !favoriteState) {
+      if (newObject.isFavorite !== data[id].isFavorite) {
         updateFiltersData(`FavoritesFilms`, newObject.isFavorite);
+        data[id].isFavorite = newObject.isFavorite;
       }
-      if (data[id].isWatchList === !watchlistState) {
+      if (newObject.isWatchList !== data[id].isWatchList) {
         updateFiltersData(`WatchlistFilms`, newObject.isWatchList);
+        data[id].isWatchList = newObject.isWatchList;
       }
 
       filmCard.update(data[id]);
