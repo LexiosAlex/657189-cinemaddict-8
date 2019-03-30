@@ -1,7 +1,6 @@
 import Component from './component.js';
 import createElement from './create-element.js';
 import moment from 'moment';
-
 export default class FilmPopup extends Component {
   constructor(data) {
     super();
@@ -18,6 +17,7 @@ export default class FilmPopup extends Component {
     this._ageRating = data.ageRating;
     this._actors = data.actors;
     this._country = data.country;
+    this._id = data.id;
 
     this._isAlreadyWatched = data.isAlreadyWatched;
     this._isFavorite = data.isFavorite;
@@ -55,7 +55,7 @@ export default class FilmPopup extends Component {
     this.update(newData);
 
     if (typeof this._onSubmit === `function`) {
-      this._onSubmit(newData);
+      this._onSubmit(newData, this._id);
     }
   }
 
@@ -380,7 +380,7 @@ export default class FilmPopup extends Component {
 
   update(upData) {
     this._userRate = upData.userRate;
-    if (upData.comment.text.length) {
+    if (upData.comment && upData.comment.text.length) {
       this._comments.push(upData.comment);
     }
     this._isAlreadyWatched = upData.isAlreadyWatched;
