@@ -18,6 +18,8 @@ export default class FilmPopup extends Component {
     this._actors = data.actors;
     this._country = data.country;
     this._id = data.id;
+    this._director = data.director;
+    this._writers = data.writers;
 
     this._isAlreadyWatched = data.isAlreadyWatched;
     this._isFavorite = data.isFavorite;
@@ -148,20 +150,21 @@ export default class FilmPopup extends Component {
     detailsTable.director = `
       <tr class="film-details__row">
         <td class="film-details__term">Director</td>
-        <td class="film-details__cell">Brad Bird</td>
+        <td class="film-details__cell">${this._director}</td>
       </tr>
       `;
 
+    const writters = `${[...this._writers].map((writer) => `${writer}`).join(`,`)}`;
     detailsTable.writters = `
       <tr class="film-details__row">
         <td class="film-details__term">Writers</td>
-        <td class="film-details__cell">Brad Bird</td>
+        <td class="film-details__cell">${writters}</td>
       </tr>
       `;
 
     const actors = {};
 
-    actors.actor = `${[...this._actors].map((actor) => `${actor}`).join(`, `)}`;
+    actors.actor = `${[...this._actors].map((actor) => `${actor}`).join(`,`)}`;
 
     detailsTable.actors = `
       <tr class="film-details__row">

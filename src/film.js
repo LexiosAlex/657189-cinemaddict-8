@@ -4,6 +4,7 @@ import createElement from './create-element.js';
 
 export default class Film extends Component {
   constructor(data) {
+
     super();
     this._id = data.id;
     this._filmTitle = data.filmTitle;
