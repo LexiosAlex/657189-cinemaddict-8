@@ -52,7 +52,6 @@ export default class FilmPopup extends Component {
   }
 
   _onButtonClose(evt) {
-    console.log(`click`);
     evt.preventDefault();
     return typeof this._onClose === `function` && this._onClose();
   }
@@ -73,10 +72,10 @@ export default class FilmPopup extends Component {
         if (it.checked === true) {
           comment.emoji = it.value;
         }
-      })
+      });
 
       if (typeof this._onSumbitComment === `function`) {
-        this._onSumbitComment(this._id , comment)
+        this._onSumbitComment(this._id, comment)
         .then(() => {
           commenmtInput.value = ` `;
           this.unbind();
@@ -86,7 +85,7 @@ export default class FilmPopup extends Component {
           commenmtInput.style.cssText = `border: 1px solid red`;
         }).finally(() => {
           commenmtInput.disabled = false;
-        })
+        });
       }
     }
   }
@@ -117,7 +116,7 @@ export default class FilmPopup extends Component {
   }
 
   set onFilmDetailsChange(fn) {
-    return this._onFilmDetailsChange = fn;
+    this._onFilmDetailsChange = fn;
   }
 
   _onStateButtonsClick() {
@@ -125,7 +124,7 @@ export default class FilmPopup extends Component {
       isAlreadyWatched: this._element.querySelector(`input[name=watched]`).checked,
       isFavorite: this._element.querySelector(`input[name=favorite]`).checked,
       isWatchList: this._element.querySelector(`input[name=watchlist]`).checked,
-    }
+    };
 
     const inputs = this._element.querySelectorAll(`.film-details__control-input`);
 
@@ -142,13 +141,13 @@ export default class FilmPopup extends Component {
           this.bind();
         })
         .catch(() => {
-          this._element.querySelector(`.film-details__controls`).style.cssText = `border: 1px solid red`
+          this._element.querySelector(`.film-details__controls`).style.cssText = `border: 1px solid red`;
         })
         .finally(() => {
           inputs.forEach((it) =>{
             it.disabled = false;
           });
-        })
+        });
     }
   }
 
@@ -159,7 +158,7 @@ export default class FilmPopup extends Component {
 
     inputs.forEach((it) => {
       it.disabled = true;
-    })
+    });
 
     if (typeof this._onScoreChange === `function`) {
       this._onScoreChange(this._id, rating)
@@ -172,18 +171,18 @@ export default class FilmPopup extends Component {
       .catch(() =>{
         inputs.forEach((it) => {
           it.style.cssText = `background-color: #770909`;
-        })
+        });
       })
       .finally(() =>{
         inputs.forEach((it) =>{
           it.disabled = false;
         });
-      })
+      });
     }
   }
 
   set onScoreChange(fn) {
-    return this._onScoreChange = fn;
+    this._onScoreChange = fn;
   }
 
   get template() {
@@ -436,9 +435,9 @@ export default class FilmPopup extends Component {
       it.addEventListener(`click`, this._onStateButtonsClick);
     });
     this.element.querySelectorAll(`input[name=score]`).forEach((it) => {
-      it.addEventListener('click', this._onScoreButtonsClick);
-    })
-  };
+      it.addEventListener(`click`, this._onScoreButtonsClick);
+    });
+  }
 
   render() {
     this._element = createElement(this.template);
@@ -459,8 +458,8 @@ export default class FilmPopup extends Component {
       it.removeEventListener(`click`, this._onStateButtonsClick);
     });
     this.element.querySelectorAll(`input[name=score]`).forEach((it) => {
-      it.removeEventListener('click', this._onScoreButtonsClick);
-    })
+      it.removeEventListener(`click`, this._onScoreButtonsClick);
+    });
   }
 
   update(upData) {

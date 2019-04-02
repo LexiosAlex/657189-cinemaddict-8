@@ -11,9 +11,31 @@ const apiData = {endPoint: END_POINT, authorization: AUTHORIZATION};
 
 const api = new Backend(apiData);
 
+const template = `<div>Loading movies...</div>`;
+const messageTemplate = document.createElement(`div`);
+messageTemplate.innerHTML = template;
+messageTemplate.style.cssText = `
+  display: flex;
+  width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 300px;
+  margin-bottom: 300px;
+  height: 150px;
+  border: solid 2px var(--outline-color);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+`;
+FILMS_LIST_MAIN.appendChild(messageTemplate);
+
 api.getMovie()
   .then((films) =>{
+    messageTemplate.classList.add(`visually-hidden`);
     mainFunction(films);
+  }).catch(() => {
+    messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
+    messageTemplate.style.border = `2px solid red`;
   });
 
 const mainFunction = (filmsData) => {
@@ -95,13 +117,13 @@ const mainFunction = (filmsData) => {
         data[id].isAlreadyWatched = state;
 
         updateFiltersData(`HistoryFilms`, state);
-
         filmPopupElement.update(data[id]);
         filmCard.reRender();
 
         removeFilters(filters);
         renderFilters(filtersData);
         getStatsData();
+        return api.updateMovie({id, data: data[id].toRaw()});
       };
 
       filmCard.onAddToFavorite = (state, id) => {
@@ -114,6 +136,7 @@ const mainFunction = (filmsData) => {
 
         removeFilters(filters);
         renderFilters(filtersData);
+        return api.updateMovie({id, data: data[id].toRaw()});
       };
 
       filmCard.onAddToWatchList = (state, id) => {
@@ -126,13 +149,14 @@ const mainFunction = (filmsData) => {
 
         removeFilters(filters);
         renderFilters(filtersData);
+        return api.updateMovie({id, data: data[id].toRaw()});
       };
 
       filmPopupElement.onSubmitComment = (id, comment) => {
         data[id].comments.push(comment);
 
         return api.updateMovie({id, data: data[id].toRaw()});
-      }
+      };
 
       filmPopupElement.onFilmDetailsChange = (id, newObject) => {
         if (newObject.isAlreadyWatched !== data[id].isAlreadyWatched) {
@@ -155,7 +179,7 @@ const mainFunction = (filmsData) => {
         renderFilters(filtersData);
 
         return api.updateMovie({id, data: data[id].toRaw()});
-      }
+      };
 
       filmPopupElement.onClose = () => {
         filmPopupElement.unrender();
@@ -165,7 +189,7 @@ const mainFunction = (filmsData) => {
         data[id].userRate = rating;
 
         return api.updateMovie({id, data: data[id].toRaw()});
-      }
+      };
     }
   };
 

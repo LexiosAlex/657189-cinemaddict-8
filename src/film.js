@@ -38,12 +38,30 @@ export default class Film extends Component {
     this._onAddToFavorite = fn;
   }
 
+  _blockElems(isBlocked) {
+    const stateButtons = this._element.querySelectorAll(`.film-card__controls-item`);
+    stateButtons.forEach((it) => {
+      it.disabled = isBlocked;
+    });
+  }
+
   _onFavoriteButtonClick(evt) {
     evt.preventDefault();
     this._isFavorite = !this._isFavorite;
-    const favoriteState = this._isFavorite;
+    this._blockElems(true);
     if (typeof this._onAddToFavorite === `function`) {
-      this._onAddToFavorite(favoriteState, this._id);
+      this._onAddToFavorite(this._isFavorite, this._id)
+        .then(() => {
+          this.unbind();
+          this._particularUpdate();
+          this.bind();
+        })
+        .catch(() =>{
+          this._element.style.cssText = `border: 1px solid red`;
+        })
+        .finally(() => {
+          this._blockElems(false);
+        });
     }
   }
 
@@ -54,9 +72,20 @@ export default class Film extends Component {
   _onWatchListButtonClick(evt) {
     evt.preventDefault();
     this._isWatchList = !this._isWatchList;
-    const watchListState = this._isWatchList;
+    this._blockElems(true);
     if (typeof this._onAddToWatchList === `function`) {
-      this._onAddToWatchList(watchListState, this._id);
+      this._onAddToWatchList(this._isWatchList, this._id)
+        .then(() => {
+          this.unbind();
+          this._particularUpdate();
+          this.bind();
+        })
+        .catch(() =>{
+          this._element.style.cssText = `border: 1px solid red`;
+        })
+        .finally(() => {
+          this._blockElems(false);
+        });
     }
   }
 
@@ -67,9 +96,20 @@ export default class Film extends Component {
   _onWatchedButtonClick(evt) {
     evt.preventDefault();
     this._isAlreadyWatched = !this._isAlreadyWatched;
-    const wathchedState = this._isAlreadyWatched;
+    this._blockElems(true);
     if (typeof this._onMarkAsWatched === `function`) {
-      this._onMarkAsWatched(wathchedState, this._id);
+      this._onMarkAsWatched(this._isAlreadyWatched, this._id)
+        .then(() => {
+          this.unbind();
+          this._particularUpdate();
+          this.bind();
+        })
+        .catch(() =>{
+          this._element.style.cssText = `border: 1px solid red`;
+        })
+        .finally(() => {
+          this._blockElems(false);
+        });
     }
   }
 

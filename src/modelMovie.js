@@ -40,39 +40,38 @@ export default class ModelMovie {
   }
 
   toRaw() {
-  const rawObject = {
-      id: this.id,
-      film_info: {
-        title: this.filmTitle,
-        alternative_title: this.originalTitle,
-        total_rating: this.rating,
-        poster: this.poster,
-        age_rating: this.ageRating,
-        director: this.director,
-        writers: [...this.writers],
-        actors:[...this.actors],
-        release: {
-          date: this.year,
-          release_country: this.country
+    const rawObject = {
+      'id': this.id,
+      'film_info': {
+        'title': this.filmTitle,
+        'alternative_title': this.originalTitle,
+        'total_rating': this.rating,
+        'poster': this.poster,
+        'age_rating': this.ageRating,
+        'director': this.director,
+        'writers': [...this.writers],
+        'actors': [...this.actors],
+        'release': {
+          'date': this.year,
+          'release_country': this.country
         },
-        runtime: this.duration,
-        genre:[...this.genres],
-        description: this.description
+        'runtime': this.duration,
+        'genre': [...this.genres],
+        'description': this.description
       },
-      user_details: {
-        personal_rating: this.userRate,
-        watchlist: this.isWatchList,
-        already_watched: this.isAlreadyWatched,
-        favorite: this.isFavorite
+      'user_details': {
+        'personal_rating': this.userRate,
+        'watchlist': this.isWatchList,
+        'already_watched': this.isAlreadyWatched,
+        'favorite': this.isFavorite
       },
-      comments: this.comments.map((it) => ({
-        author: it.author,
-        date: it.addDate,
-        emotion: it.emoji,
-        comment: it.text
+      'comments': this.comments.map((it) => ({
+        'author': it.author,
+        'date': it.addDate,
+        'emotion': it.emoji,
+        'comment': it.text
       }))
-    }
-    console.log(rawObject);
+    };
     return rawObject;
   }
 

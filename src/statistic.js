@@ -18,17 +18,17 @@ export default class Statistic extends Component {
 
     let userRank = `undefined`;
 
-     if (this._moviesCount < 11) {
-      userRank = `novice`
-     };
+    if (this._moviesCount < 11) {
+      userRank = `novice`;
+    }
 
-      if (this._moviesCount < 21 & this._moviesCount > 10) {
-        userRank = ` fan`
-      };
+    if (this._moviesCount < 21 & this._moviesCount > 10) {
+      userRank = `fan`;
+    }
 
-      if (this._moviesCount > 20) {
-        userRank = ` movie buff`
-      };
+    if (this._moviesCount > 20) {
+      userRank = `movie buff`;
+    }
 
 
     return `
