@@ -32,17 +32,6 @@ export default class API {
       .then(ModelMovie.parseMovies);
   }
 
-  createMovie({movie}) {
-    return this._load({
-      url: `movies`,
-      method: Method.POST,
-      body: JSON.stringify(movie),
-      headers: new Headers({'Content-Type': `application/json`})
-    })
-      .then(toJSON)
-      .then(ModelMovie.parseMovie);
-  }
-
   updateMovie({id, data}) {
     return this._load({
       url: `movies/${id}`,
@@ -54,17 +43,13 @@ export default class API {
       .then(ModelMovie.parseMovie);
   }
 
-  deleteMovie({id}) {
-    return this._load({url: `movies/${id}`, method: Method.DELETE});
-  }
-
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
       .then(checkStatus)
       .catch((err) => {
-        // console.error(`fetch error: ${err}`);
+        console.error(`fetch error: ${err}`);
         throw err;
       });
   }

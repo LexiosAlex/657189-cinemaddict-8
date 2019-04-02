@@ -5,7 +5,7 @@ import Statistics from './statistic.js';
 import Filter from './filter.js';
 import Backend from './backend.js';
 
-const AUTHORIZATION = `Basic eo0w590ik23219a`;
+const AUTHORIZATION = `Basic eo0w590ik56219a`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle/`;
 const apiData = {endPoint: END_POINT, authorization: AUTHORIZATION};
 
@@ -128,11 +128,13 @@ const mainFunction = (filmsData) => {
         renderFilters(filtersData);
       };
 
-      filmPopupElement.onClose = () => {
-        filmPopupElement.unrender();
-      };
+      filmPopupElement.onSubmitComment = (id, comment) => {
+        data[id].comments.push(comment);
 
-      filmPopupElement.onSubmit = (newObject, id) => {
+        return api.updateMovie({id, data: data[id].toRaw()});
+      }
+
+      filmPopupElement.onFilmDetailsChange = (id, newObject) => {
         if (newObject.isAlreadyWatched !== data[id].isAlreadyWatched) {
           updateFiltersData(`HistoryFilms`, newObject.isAlreadyWatched);
           data[id].isAlreadyWatched = newObject.isAlreadyWatched;
@@ -151,7 +153,19 @@ const mainFunction = (filmsData) => {
 
         removeFilters(filters);
         renderFilters(filtersData);
+
+        return api.updateMovie({id, data: data[id].toRaw()});
+      }
+
+      filmPopupElement.onClose = () => {
+        filmPopupElement.unrender();
       };
+
+      filmPopupElement.onScoreChange = (id, rating) => {
+        data[id].userRate = rating;
+
+        return api.updateMovie({id, data: data[id].toRaw()});
+      }
     }
   };
 
