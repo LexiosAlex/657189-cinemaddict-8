@@ -31,8 +31,8 @@ FILMS_LIST_MAIN.appendChild(messageTemplate);
 
 api.getMovie()
   .then((films) =>{
-    messageTemplate.classList.add(`visually-hidden`);
     mainFunction(films);
+    messageTemplate.classList.add(`visually-hidden`);
   }).catch(() => {
     messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
     messageTemplate.style.border = `2px solid red`;
@@ -201,8 +201,43 @@ const mainFunction = (filmsData) => {
     }
   };
 
-
   renderFilmCard(filmsData, FILMS_LIST_MAIN);
+
+  const topCommmArea = document.querySelector(`.films-list__container--top-commented`);
+
+  const getTopCommentData = (data) => {
+    const topCommentSort = data.slice();
+    topCommentSort.sort((a, b) => {
+      return b.comments.length - a.comments.length;
+    });
+
+    topCommentSort.forEach((it) => {
+      it.controlsDeactivate = true;
+    });
+
+    return topCommentSort.slice(0, 2);
+  };
+
+  renderFilmCard(getTopCommentData(filmsData), topCommmArea);
+
+  const topRatedArea = document.querySelector(`.films-list__container--top-rated`);
+
+  const getTopRatedData = (data) => {
+    const topRatedSort = data.slice();
+    topRatedSort.sort((a, b) => {
+      return b.rating - a.rating;
+    });
+
+    topRatedSort.forEach((it) => {
+      it.controlsDeactivate = true;
+    });
+
+    return topRatedSort.slice(0, 2);
+  };
+
+  renderFilmCard(getTopRatedData(filmsData), topRatedArea);
+
+  // ПОЧЕМУ ОНО НЕ РАБОТАЕТ
 
   const filters = [];
 
@@ -390,4 +425,24 @@ const mainFunction = (filmsData) => {
       statisticComponent.unrender();
     }
   };
+
+
+  // profileRating = document.querySelector(`.profile__rating`);
+
+  // if (filmsData.length < 11) {
+  //    profileRating.textContent = `novice`;
+  // }
+
+  // if (filmsData.length < 21 & this._moviesCount > 10) {
+  //   profileRating.textContent = `fan`;
+  // }
+
+  // if (filmsData.length > 20) {
+  //   profileRating.textContent = `movie buff`;
+  // }
+
+  // document.qyerySlector(`footer__statistics`).textContent = filmsData.length;
+
+  // И ТУТ ТОЖЕ ОНО НЕ РАБОТАЕТ, ЕСЛИ РАСКОМЕНТИРОВАТЬ, ПОЧЕМУ ТАК????
+
 };
