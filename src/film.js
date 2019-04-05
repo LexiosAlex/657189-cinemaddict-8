@@ -192,7 +192,7 @@ export default class Film extends Component {
     `;
 
     const filmCardContent = `
-      <article class="film-card ${this._controlsDeactivate ? `film-card--no-controls` : ``}">
+      <article class="film-card ${this._controlsDeactivate ? `film-card--no-controls` : `visually-hidden film-card--hidden`}">
         ${filmCard.filmTitle}
         ${filmCard.rating}
         ${filmCard.filmInfo}
@@ -209,7 +209,7 @@ export default class Film extends Component {
   bind() {
     this._element.querySelector(`.film-card__comments`)
       .addEventListener(`click`, this._onCommentsButtonClick);
-    if (this._controlsDeactivate === false || undefined) {
+    if (this._controlsDeactivate !== true) {
       this._element.querySelector(`.film-card__controls-item--add-to-watchlist`)
         .addEventListener(`click`, this._onWatchListButtonClick);
       this._element.querySelector(`.film-card__controls-item--mark-as-watched`)
@@ -222,7 +222,7 @@ export default class Film extends Component {
   undibind() {
     this._element.querySelector(`.film-card__comments`)
       .removeEventListener(`click`, this._onCommentsButtonClick);
-    if (this._controlsDeactivate === true || undefined) {
+    if (this._controlsDeactivate !== true) {
       this._element.querySelector(`.film-card__controls-item--add-to-watchlist`)
         .removeEventListener(`click`, this._onWatchListButtonClick);
       this._element.querySelector(`.film-card__controls-item--mark-as-watched`)

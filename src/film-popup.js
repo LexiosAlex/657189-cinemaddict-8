@@ -350,7 +350,7 @@ export default class FilmPopup extends Component {
     const getRatingString = (rating) => {
       const arr = [];
       for (let i = 0; i < 10; i++) {
-        if (rating.toString() === i.toString()) {
+        if (rating && rating.toString() === i.toString()) {
           arr[i] = `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i}" id="rating-${i}" checked>
                   <label class="film-details__user-rating-label" for="rating-${i}">${i}</label>`;
         } else {
@@ -463,7 +463,9 @@ export default class FilmPopup extends Component {
   }
 
   update(upData) {
-    this._userRate = upData.userRate;
+    if (upData.userRate) {
+      this._userRate = upData.userRate;
+    }
     this._isAlreadyWatched = upData.isAlreadyWatched;
     this._isFavorite = upData.isFavorite;
     this._isWatchList = upData.isWatchList;
