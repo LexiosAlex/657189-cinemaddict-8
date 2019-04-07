@@ -31,7 +31,9 @@ export default class Component {
 
   unrender() {
     this.unbind();
-    this._element.remove();
+    if (this._element) {
+      this._element.remove();
+    }
     this._element = null;
   }
 
