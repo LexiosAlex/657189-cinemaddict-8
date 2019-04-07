@@ -5,6 +5,7 @@ import Backend from './backend.js';
 import renderFilmCard from './render-film-card.js';
 import {renderFilters, getFiltersData} from './filters.js';
 import {getStatsData} from './statistics.js';
+import {getTopCommentData, renderTopComments, getTopRatedData, renderTopRated} from './render-extra-film-cards.js';
 
 const AUTHORIZATION = `Basic eo0w590ik56219a`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle/`;
@@ -34,10 +35,10 @@ api.getMovie()
     mainFunction(films);
     messageTemplate.classList.add(`visually-hidden`);
   })
-  // .catch(() => {
-  //   messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
-  //   messageTemplate.style.border = `2px solid red`;
-  // });
+  .catch(() => {
+    messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
+    messageTemplate.style.border = `2px solid red`;
+  });
 
 const mainFunction = (filmsData) => {
   let filmCards = [];
@@ -98,67 +99,17 @@ const mainFunction = (filmsData) => {
 
   renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`, filmsData);
 
-  const topCommmArea = document.querySelector(`.films-list__container--top-commented`);
-  let topCommsData = null;
-  const getTopCommentData = (data) => {
-    const topCommentSort = data.slice();
-    topCommentSort.sort((a, b) => {
-      return b.comments.length - a.comments.length;
-    });
-
-    topCommentSort.forEach((it) => {
-      it.controlsDeactivate = true;
-    });
-
-    topCommsData = topCommentSort.slice(0, 2);
-  };
-
   getTopCommentData(filmsData);
-  let commentFilmCards = [];
-  let commentFilmPopupCards = [];
-
-  const renderExtraFilms = (data, area, extraFilmCards, extraFilmPopupCards) => {
-    extraFilmCards = [];
-    extraFilmPopupCards = [];
-    data.forEach((it) => {
-      extraFilmCards.push(new Film(it));
-      extraFilmPopupCards.push(new FilmPopup(it));
-    });
-
-    renderFilmCard(data, area, extraFilmCards, extraFilmPopupCards, `main`, filmsData);
-  };
-
-  renderExtraFilms(topCommsData, topCommmArea, commentFilmCards, commentFilmPopupCards);
-
-
-  const topRatedArea = document.querySelector(`.films-list__container--top-rated`);
-  let topRateData = null;
-  const getTopRatedData = (data) => {
-    const topRatedSort = data.slice();
-    topRatedSort.sort((a, b) => {
-      return b.rating - a.rating;
-    });
-
-    topRatedSort.forEach((it) => {
-      it.controlsDeactivate = true;
-    });
-
-    topRateData = topRatedSort.slice(0, 2);
-  };
-
   getTopRatedData(filmsData);
-  let topRatedFilmCards = [];
-  let topRatedFilmsPopupCards = [];
 
-  renderExtraFilms(topRateData, topRatedArea, topRatedFilmCards, topRatedFilmsPopupCards);
+  renderTopComments(filmsData);
+  renderTopRated(filmsData);
 
   renderFilters(filmsData, filmCards);
-
   getStatsData(filmsData);
 
   const profileRating = document.querySelector(`.profile__rating`);
   const watchedMovies = filmsData.filter((it) => it[`isAlreadyWatched`] === true);
-
 
   if (watchedMovies.length < 11) {
     profileRating.textContent = `novice`;
@@ -224,155 +175,3 @@ const mainFunction = (filmsData) => {
   }
 
 };
-
-
-// const renderFilmCard = (data, area, mainFilmCards, mainFilmPopupCards, whichCardsUpdate) => {
-//   for (let i = 0; i < data.length; i++) {
-//     let filmCard = mainFilmCards[i];
-//     let filmPopupElement = mainFilmPopupCards[i];
-
-//     area.appendChild(filmCard.render());
-
-//     const rerenderCards = () => {
-//       if (whichCardsUpdate === `main`) {
-//         removeFilmCards(filmCards);
-//         createCardsData(filmsData);
-//         renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
-//       }
-
-//       if (whichCardsUpdate === `extra`) {
-//         removeFilmCards(commentFilmCards);
-//         getTopCommentData(filmsData);
-//         renderExtraFilms(topCommsData, topCommmArea, commentFilmCards, commentFilmPopupCards);
-//         removeFilmCards(topRatedFilmCards);
-//         getTopRatedData(filmsData);
-//         renderExtraFilms(topRateData, topRatedArea, topRatedFilmCards, topRatedFilmsPopupCards);
-//       }
-//     };
-
-//     filmCard.onComments = () => {
-//       document.body.appendChild(filmPopupElement.render());
-//     };
-
-//     filmCard.onMarkAsWatched = (state, id) => {
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].isAlreadyWatched = state;
-
-//       updateFiltersData(`HistoryFilms`, state);
-//       filmPopupElement.update(data[dataIndex]);
-//       filmCard.reRender();
-
-//       removeFilters(filters);
-//       renderFilters(filtersData);
-//       getStatsData();
-
-
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//       });
-//     };
-
-//     filmCard.onAddToFavorite = (state, id) => {
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].isFavorite = state;
-
-//       updateFiltersData(`FavoritesFilms`, state);
-
-//       filmPopupElement.update(data[dataIndex]);
-//       filmCard.reRender();
-
-//       removeFilters(filters);
-//       renderFilters(filtersData);
-
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//       });
-//     };
-
-//     filmCard.onAddToWatchList = (state, id) => {
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].isWatchList = state;
-
-//       updateFiltersData(`WatchlistFilms`, state);
-
-//       filmPopupElement.update(data[dataIndex]);
-//       filmCard.reRender();
-
-//       removeFilters(filters);
-//       renderFilters(filtersData);
-
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//       });
-//     };
-
-//     filmPopupElement.onSubmitComment = (id, comment) => {
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].comments.push(comment);
-
-//       filmCard.reRender();
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//         showMore();
-//       });
-//     };
-
-//     filmPopupElement.onFilmDetailsChange = (id, newObject) => {
-
-//       const dataIndex = data.findIndex((it) => it.id === id);
-
-//       if (newObject.isAlreadyWatched !== data[dataIndex].isAlreadyWatched) {
-//         updateFiltersData(`HistoryFilms`, newObject.isAlreadyWatched);
-//         data[dataIndex].isAlreadyWatched = newObject.isAlreadyWatched;
-//       }
-//       if (newObject.isFavorite !== data[dataIndex].isFavorite) {
-//         updateFiltersData(`FavoritesFilms`, newObject.isFavorite);
-//         data[dataIndex].isFavorite = newObject.isFavorite;
-//       }
-//       if (newObject.isWatchList !== data[dataIndex].isWatchList) {
-//         updateFiltersData(`WatchlistFilms`, newObject.isWatchList);
-//         data[dataIndex].isWatchList = newObject.isWatchList;
-//       }
-
-//       filmCard.update(data[dataIndex]);
-//       filmCard.reRender();
-
-
-//       removeFilters(filters);
-//       renderFilters(filtersData);
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//         showMore();
-//       });
-//     };
-
-//     filmPopupElement.onClose = () => {
-//       filmPopupElement.unrender();
-//     };
-
-//     filmPopupElement.onScoreChange = (id, rating) => {
-
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].userRate = rating;
-
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//         showMore();
-//       });
-//     };
-//   }
-// };
-
-// const removeFilmCards = (filmCards) => {
-//   for (let i = 0; i < filmCards.length; i++) {
-//     let filmCard = filmCards[i];
-
-//     filmCard.unrender();
-//   }
-// };
