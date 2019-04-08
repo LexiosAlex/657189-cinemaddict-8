@@ -5,7 +5,6 @@ import renderFilmCard from './render-film-card.js';
 import {getStatsData, renderStatsComponent, unrenderStatsComponent} from './statistics.js';
 import Film from './film.js';
 import FilmPopup from './film-popup.js';
-import {getMainFilmsDataToChache, getFiltersDataToChache} from './main-film-cards-chache.js';
 
 const filmsArea = document.querySelector(`.films`);
 const statisticArea = document.querySelector(`.statistic`);
@@ -68,6 +67,7 @@ export const renderFilters = (filmsData, filmCards) => {
   FILTERS_AREA.appendChild(filterFavoritesFilms.render());
   FILTERS_AREA.appendChild(filterStats.render());
 
+
   const deActivateAll = () => {
     filtersData.forEach((it) =>{
       it.active = false;
@@ -111,7 +111,6 @@ export const renderFilters = (filmsData, filmCards) => {
     filterName.activate();
     updateAll();
     showMore();
-    getFiltersDataToChache(dataFilter[dataFilter.findIndex((it) => it.id === filterId)].id);
   };
 
   filterAll.onFilterClick = () => {
@@ -127,7 +126,6 @@ export const renderFilters = (filmsData, filmCards) => {
     filtersData[filtersData.findIndex((it) => it.id === `AllFilms`)].active = true;
     updateAll();
     showMore();
-    getFiltersDataToChache(`AllFilms`);
   };
 
   filterWatchlistFilms.onFilterClick = () => {
