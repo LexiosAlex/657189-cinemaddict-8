@@ -1,15 +1,11 @@
 import {updateFiltersData, removeFilters, renderFilters} from './filters.js';
 import {getStatsData} from './statistics.js';
 import Backend from './backend.js';
-import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
-import {getTopCommentData, renderTopComments, getTopRatedData, renderTopRated} from './render-extra-film-cards.js';
 
 const AUTHORIZATION = `Basic eo0w590ik56219a`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle/`;
 const apiData = {endPoint: END_POINT, authorization: AUTHORIZATION};
 const api = new Backend(apiData);
-const topCommmArea = document.querySelector(`.films-list__container--top-commented`);
-const topRatedArea = document.querySelector(`.films-list__container--top-rated`);
 
 export default (data, area, mainFilmCards, mainFilmPopupCards, whichCardsUpdate, filmsData) => {
   for (let i = 0; i < data.length; i++) {
@@ -19,19 +15,20 @@ export default (data, area, mainFilmCards, mainFilmPopupCards, whichCardsUpdate,
     area.appendChild(filmCard.render());
 
     const rerenderCards = () => {
-      if (whichCardsUpdate === `main`) {
-        removeFilmCards(filmCards);
-        createCardsData(filmsData);
-        renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`, filmCards);
-      }
+      // if (whichCardsUpdate === `main`) {
+      //   removeFilmCards(filmCards);
+      //   createCardsData(filmsData);
+      //   renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`, filmCards);
+      // }
 
-      if (whichCardsUpdate === `extra`) {
-        getTopCommentData(filmsData);
-        debugger;
-        renderTopComments(filmsData);
-        getTopRatedData(filmsData);
-        renderTopRated(filmsData);
-      }
+      // if (whichCardsUpdate === `extra`) {
+      //   removeFilmCards(commentFilmCards);
+      //   getTopCommentData(filmsData);
+      //   renderExtraFilms(topCommsData, topCommmArea, commentFilmCards, commentFilmPopupCards);
+      //   removeFilmCards(topRatedFilmCards);
+      //   getTopRatedData(filmsData);
+      //   renderExtraFilms(topRateData, topRatedArea, topRatedFilmCards, topRatedFilmsPopupCards);
+      // }
     };
 
     filmCard.onComments = () => {
