@@ -31,8 +31,10 @@ export default class Component {
 
   unrender() {
     this.unbind();
-    this._element.remove();
-    this._element = null;
+    if (this._element) {
+      this._element.remove();
+      this._element = null;
+    }
   }
 
   _particularUpdate() {
