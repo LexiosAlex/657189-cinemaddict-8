@@ -1,14 +1,14 @@
 import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
 import Film from './film.js';
 import FilmPopup from './film-popup.js';
+import Statistics from './statistic.js';
+import Filter from './filter.js';
 import Backend from './backend.js';
-import renderFilmCard from './render-film-card.js';
-import {renderFilters, getFiltersData} from './filters.js';
-import {getStatsData} from './statistics.js';
 
 const AUTHORIZATION = `Basic eo0w590ik56219a`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle/`;
 const apiData = {endPoint: END_POINT, authorization: AUTHORIZATION};
+
 const api = new Backend(apiData);
 
 const template = `<div>Loading movies...</div>`;
@@ -34,10 +34,10 @@ api.getMovie()
     mainFunction(films);
     messageTemplate.classList.add(`visually-hidden`);
   })
-  // .catch(() => {
-  //   messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
-  //   messageTemplate.style.border = `2px solid red`;
-  // });
+  .catch(() => {
+    messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
+    messageTemplate.style.border = `2px solid red`;
+  });
 
 const mainFunction = (filmsData) => {
   let filmCards = [];
@@ -73,8 +73,6 @@ const mainFunction = (filmsData) => {
     }
   ];
 
-  getFiltersData(filtersData);
-
   const unrenderFilters = () => {
     let filterArray = FILTERS_AREA.querySelectorAll(`.main-navigation__item`);
     filterArray.forEach((item) => {
@@ -82,7 +80,7 @@ const mainFunction = (filmsData) => {
     });
   };
 
-  unrenderFilters(filmsData);
+  unrenderFilters();
 
   const createCardsData = (data) => {
     filmCards = [];
@@ -96,7 +94,168 @@ const mainFunction = (filmsData) => {
 
   createCardsData(filmsData);
 
-  renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`, filmsData);
+  const updateFiltersData = (filterId, state) => {
+    const filterIndex = filtersData.findIndex((it) => it.id === filterId);
+    if (state) {
+      filtersData[filterIndex].amount++;
+    } else {
+      filtersData[filterIndex].amount--;
+    }
+  };
+
+  const renderFilmCard = (data, area, mainFilmCards, mainFilmPopupCards, whichCardsUpdate) => {
+    for (let i = 0; i < data.length; i++) {
+      let filmCard = mainFilmCards[i];
+      let filmPopupElement = mainFilmPopupCards[i];
+
+      area.appendChild(filmCard.render());
+
+      const rerenderCards = () => {
+        if (whichCardsUpdate === `main`) {
+          removeFilmCards(filmCards);
+          createCardsData(filmsData);
+          renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
+        }
+
+        if (whichCardsUpdate === `extra`) {
+          removeFilmCards(commentFilmCards);
+          getTopCommentData(filmsData);
+          renderExtraFilms(topCommsData, topCommmArea, commentFilmCards, commentFilmPopupCards);
+          removeFilmCards(topRatedFilmCards);
+          getTopRatedData(filmsData);
+          renderExtraFilms(topRateData, topRatedArea, topRatedFilmCards, topRatedFilmsPopupCards);
+        }
+      };
+
+      filmCard.onComments = () => {
+        document.body.appendChild(filmPopupElement.render());
+      };
+
+      filmCard.onMarkAsWatched = (state, id) => {
+        const dataIndex = data.findIndex((it) => it.id === id);
+        data[dataIndex].isAlreadyWatched = state;
+
+        updateFiltersData(`HistoryFilms`, state);
+        filmPopupElement.update(data[dataIndex]);
+        filmCard.reRender();
+
+        removeFilters(filters);
+        renderFilters(filtersData);
+        getStatsData();
+
+
+        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        .then(() => {
+          rerenderCards(whichCardsUpdate);
+        });
+      };
+
+      filmCard.onAddToFavorite = (state, id) => {
+        const dataIndex = data.findIndex((it) => it.id === id);
+        data[dataIndex].isFavorite = state;
+
+        updateFiltersData(`FavoritesFilms`, state);
+
+        filmPopupElement.update(data[dataIndex]);
+        filmCard.reRender();
+
+        removeFilters(filters);
+        renderFilters(filtersData);
+
+        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        .then(() => {
+          rerenderCards(whichCardsUpdate);
+        });
+      };
+
+      filmCard.onAddToWatchList = (state, id) => {
+        const dataIndex = data.findIndex((it) => it.id === id);
+        data[dataIndex].isWatchList = state;
+
+        updateFiltersData(`WatchlistFilms`, state);
+
+        filmPopupElement.update(data[dataIndex]);
+        filmCard.reRender();
+
+        removeFilters(filters);
+        renderFilters(filtersData);
+
+        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        .then(() => {
+          rerenderCards(whichCardsUpdate);
+        });
+      };
+
+      filmPopupElement.onSubmitComment = (id, comment) => {
+        const dataIndex = data.findIndex((it) => it.id === id);
+        data[dataIndex].comments.push(comment);
+
+        filmCard.reRender();
+        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        .then(() => {
+          rerenderCards(whichCardsUpdate);
+          showMore();
+        });
+      };
+
+      filmPopupElement.onFilmDetailsChange = (id, newObject) => {
+
+        const dataIndex = data.findIndex((it) => it.id === id);
+
+        if (newObject.isAlreadyWatched !== data[dataIndex].isAlreadyWatched) {
+          updateFiltersData(`HistoryFilms`, newObject.isAlreadyWatched);
+          data[dataIndex].isAlreadyWatched = newObject.isAlreadyWatched;
+        }
+        if (newObject.isFavorite !== data[dataIndex].isFavorite) {
+          updateFiltersData(`FavoritesFilms`, newObject.isFavorite);
+          data[dataIndex].isFavorite = newObject.isFavorite;
+        }
+        if (newObject.isWatchList !== data[dataIndex].isWatchList) {
+          updateFiltersData(`WatchlistFilms`, newObject.isWatchList);
+          data[dataIndex].isWatchList = newObject.isWatchList;
+        }
+
+        filmCard.update(data[dataIndex]);
+        filmCard.reRender();
+
+
+        removeFilters(filters);
+        renderFilters(filtersData);
+        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        .then(() => {
+          rerenderCards(whichCardsUpdate);
+          showMore();
+        });
+      };
+
+      filmPopupElement.onClose = () => {
+        filmPopupElement.unrender();
+      };
+
+      filmPopupElement.onScoreChange = (id, rating) => {
+
+        const dataIndex = data.findIndex((it) => it.id === id);
+        data[dataIndex].userRate = rating;
+
+        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        .then(() => {
+          rerenderCards(whichCardsUpdate);
+          showMore();
+        });
+      };
+    }
+  };
+
+  const removeFilmCards = (filmCards) => {
+    for (let i = 0; i < filmCards.length; i++) {
+      let filmCard = filmCards[i];
+
+      filmCard.unrender();
+    }
+  };
+
+  renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
+
 
   const topCommmArea = document.querySelector(`.films-list__container--top-commented`);
   let topCommsData = null;
@@ -125,7 +284,7 @@ const mainFunction = (filmsData) => {
       extraFilmPopupCards.push(new FilmPopup(it));
     });
 
-    renderFilmCard(data, area, extraFilmCards, extraFilmPopupCards, `main`, filmsData);
+    renderFilmCard(data, area, extraFilmCards, extraFilmPopupCards, `main`);
   };
 
   renderExtraFilms(topCommsData, topCommmArea, commentFilmCards, commentFilmPopupCards);
@@ -152,9 +311,195 @@ const mainFunction = (filmsData) => {
 
   renderExtraFilms(topRateData, topRatedArea, topRatedFilmCards, topRatedFilmsPopupCards);
 
-  renderFilters(filmsData, filmCards);
+  const filters = [];
 
-  getStatsData(filmsData);
+  const filmsArea = document.querySelector(`.films`);
+  const statisticArea = document.querySelector(`.statistic`);
+
+  const showFilms = () => {
+    if (filmsArea.classList.contains(`visually-hidden`)) {
+      filmsArea.classList.remove(`visually-hidden`);
+      statisticArea.classList.add(`visually-hidden`);
+    }
+  };
+
+  const hideFilms = () => {
+    if (statisticArea.classList.contains(`visually-hidden`)) {
+      filmsArea.classList.add(`visually-hidden`);
+      statisticArea.classList.remove(`visually-hidden`);
+    }
+  };
+
+  const renderFilters = (data) => {
+    for (let i = 0; i < data.length; i++) {
+      filters[i] = new Filter(data[i]);
+    }
+
+    const filterAll = filters[data.findIndex((it) => it.id === `AllFilms`)];
+    const filterWatchlistFilms = filters[data.findIndex((it) => it.id === `WatchlistFilms`)];
+    const filterHistoryFilms = filters[data.findIndex((it) => it.id === `HistoryFilms`)];
+    const filterFavoritesFilms = filters[data.findIndex((it) => it.id === `FavoritesFilms`)];
+    const filterStats = filters[data.findIndex((it) => it.id === `Stats`)];
+
+    FILTERS_AREA.appendChild(filterAll.render());
+    FILTERS_AREA.appendChild(filterWatchlistFilms.render());
+    FILTERS_AREA.appendChild(filterHistoryFilms.render());
+    FILTERS_AREA.appendChild(filterFavoritesFilms.render());
+    FILTERS_AREA.appendChild(filterStats.render());
+
+
+    const deActivateAll = () => {
+      data.forEach((it) =>{
+        it.active = false;
+      });
+      filterHistoryFilms.deActivate();
+      filterAll.deActivate();
+      filterWatchlistFilms.deActivate();
+      filterFavoritesFilms.deActivate();
+      filterStats.deActivate();
+    };
+
+    const updateAll = () => {
+      filterAll.unrender();
+      FILTERS_AREA.appendChild(filterAll.render());
+
+      filterWatchlistFilms.unrender();
+      FILTERS_AREA.appendChild(filterWatchlistFilms.render());
+
+      filterHistoryFilms.unrender();
+      FILTERS_AREA.appendChild(filterHistoryFilms.render());
+
+      filterFavoritesFilms.unrender();
+      FILTERS_AREA.appendChild(filterFavoritesFilms.render());
+
+      filterStats.unrender();
+      FILTERS_AREA.appendChild(filterStats.render());
+    };
+
+    const filterActivate = (filterName, dataFilter, filterId, stateName) => {
+      showFilms();
+      const filteredArray = filmsData.filter((it) => it[stateName] === true);
+      removeFilmCards(filmCards);
+      createCardsData(filteredArray);
+      renderFilmCard(filteredArray, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
+      deActivateAll();
+      dataFilter[dataFilter.findIndex((it) => it.id === filterId)].active = true;
+      filterName.activate();
+      updateAll();
+      showMore();
+    };
+
+    filterAll.onFilterClick = () => {
+      showFilms();
+      removeFilmCards(filmCards);
+      createCardsData(filmsData);
+      renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
+      deActivateAll();
+      filterAll.activate();
+      data[data.findIndex((it) => it.id === `AllFilms`)].active = true;
+      updateAll();
+      showMore();
+    };
+
+    filterWatchlistFilms.onFilterClick = () => {
+      filterActivate(filterWatchlistFilms, data, `WatchlistFilms`, `isWatchList`);
+    };
+
+    filterHistoryFilms.onFilterClick = () => {
+      filterActivate(filterHistoryFilms, data, `HistoryFilms`, `isAlreadyWatched`);
+    };
+
+    filterFavoritesFilms.onFilterClick = () => {
+      filterActivate(filterFavoritesFilms, data, `FavoritesFilms`, `isFavorite`);
+    };
+
+    filterStats.onFilterClick = () => {
+      hideFilms();
+      deActivateAll();
+      filterStats.activate();
+      updateAll();
+      unrenderStatsComponent();
+      renderStatsComponent();
+    };
+  };
+
+  renderFilters(filtersData);
+
+  const removeFilters = (filtersArr) => {
+    filtersArr.forEach((it) =>{
+      it.unrender();
+    });
+  };
+
+  let statisticComponent = null;
+
+  const getStatsData = () => {
+    const statsData = {};
+    const historyArray = filmsData.filter((it) => it.isAlreadyWatched === true);
+
+    let totalMins = 0;
+
+    historyArray.forEach((it) =>{
+      totalMins += it.duration;
+    });
+
+    let genresSet = new Set([]);
+
+    historyArray.forEach((it) => {
+      it.genres.forEach((genre) => {
+        genresSet.add(genre);
+      });
+    });
+
+    let genresArray = [];
+    genresSet.forEach((setGenre) =>{
+      let genreObject = {};
+      genreObject.genre = setGenre;
+      genreObject.count = 0;
+      historyArray.filter((it) => {
+        it.genres.forEach((elem) => {
+          if (setGenre === elem) {
+            genreObject.count++;
+          }
+        });
+      });
+      genresArray.push(genreObject);
+    });
+
+    genresArray.sort((a, b) => {
+      return b.count - a.count;
+    });
+
+    let genres = [];
+    let genresCount = [];
+    genresArray.forEach((it) => {
+      genres.push(it.genre);
+      genresCount.push(it.count);
+    });
+
+    statsData.genresCount = genresCount;
+    statsData.genres = genres;
+    statsData.totaltime = totalMins;
+    statsData.moviesCount = historyArray.length;
+
+    return statsData;
+  };
+
+  const renderStatsComponent = () => {
+    const statsData = getStatsData();
+    statisticComponent = new Statistics(statsData);
+    statisticArea.appendChild(statisticComponent.render());
+    statisticComponent.statisticDiagram();
+  };
+
+  renderStatsComponent();
+
+  const unrenderStatsComponent = () => {
+    if (statisticComponent) {
+      statisticComponent.unrender();
+    }
+  };
+
 
   const profileRating = document.querySelector(`.profile__rating`);
   const watchedMovies = filmsData.filter((it) => it[`isAlreadyWatched`] === true);
@@ -176,16 +521,10 @@ const mainFunction = (filmsData) => {
 
 
   const showMore = () => {
-    if (filmCards.length < 5) {
-      showMoreButton.classList.add(`visually-hidden`);
-    }
     for (let i = 0; i < 5; i++) {
       if (FILMS_LIST_MAIN.querySelector(`.film-card--hidden`)) {
-        showMoreButton.classList.remove(`visually-hidden`);
         const film = FILMS_LIST_MAIN.querySelector(`.film-card--hidden`);
         film.classList.remove(`film-card--hidden`, `visually-hidden`);
-      } else {
-        showMoreButton.classList.add(`visually-hidden`);
       }
     }
   };
@@ -196,183 +535,12 @@ const mainFunction = (filmsData) => {
 
   const searchBar = document.querySelector(`input[name=search]`);
 
-  searchBar.addEventListener(`keyup`, debounce((evt) => {
-
+  searchBar.addEventListener(`keyup`, (evt) => {
     const searchText = evt.target.value.toLowerCase();
-    const searchedArray = filmsData.filter((it) =>
-      it.filmTitle.toLowerCase().indexOf(searchText) !== -1
-    );
-//  FILTER
-  }, 500));
-
-  function debounce(f, ms) {
-
-    let timer = null;
-
-    return function (...args) {
-      const onComplete = () => {
-        f.apply(this, args);
-        timer = null;
-      };
-
-      if (timer) {
-        clearTimeout(timer);
-      }
-
-      timer = setTimeout(onComplete, ms);
-    };
-  }
+    const searchedArray = filmsData.findIndex((it) => {
+      it.filmTitle.toLowerCase().indexOf(searchText) !== -1;
+    });
+    //НУ ВРОДЕ БУДЕТ ФИЛЬТР, НО ПОКА НЕТУ
+  });
 
 };
-
-
-// const renderFilmCard = (data, area, mainFilmCards, mainFilmPopupCards, whichCardsUpdate) => {
-//   for (let i = 0; i < data.length; i++) {
-//     let filmCard = mainFilmCards[i];
-//     let filmPopupElement = mainFilmPopupCards[i];
-
-//     area.appendChild(filmCard.render());
-
-//     const rerenderCards = () => {
-//       if (whichCardsUpdate === `main`) {
-//         removeFilmCards(filmCards);
-//         createCardsData(filmsData);
-//         renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
-//       }
-
-//       if (whichCardsUpdate === `extra`) {
-//         removeFilmCards(commentFilmCards);
-//         getTopCommentData(filmsData);
-//         renderExtraFilms(topCommsData, topCommmArea, commentFilmCards, commentFilmPopupCards);
-//         removeFilmCards(topRatedFilmCards);
-//         getTopRatedData(filmsData);
-//         renderExtraFilms(topRateData, topRatedArea, topRatedFilmCards, topRatedFilmsPopupCards);
-//       }
-//     };
-
-//     filmCard.onComments = () => {
-//       document.body.appendChild(filmPopupElement.render());
-//     };
-
-//     filmCard.onMarkAsWatched = (state, id) => {
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].isAlreadyWatched = state;
-
-//       updateFiltersData(`HistoryFilms`, state);
-//       filmPopupElement.update(data[dataIndex]);
-//       filmCard.reRender();
-
-//       removeFilters(filters);
-//       renderFilters(filtersData);
-//       getStatsData();
-
-
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//       });
-//     };
-
-//     filmCard.onAddToFavorite = (state, id) => {
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].isFavorite = state;
-
-//       updateFiltersData(`FavoritesFilms`, state);
-
-//       filmPopupElement.update(data[dataIndex]);
-//       filmCard.reRender();
-
-//       removeFilters(filters);
-//       renderFilters(filtersData);
-
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//       });
-//     };
-
-//     filmCard.onAddToWatchList = (state, id) => {
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].isWatchList = state;
-
-//       updateFiltersData(`WatchlistFilms`, state);
-
-//       filmPopupElement.update(data[dataIndex]);
-//       filmCard.reRender();
-
-//       removeFilters(filters);
-//       renderFilters(filtersData);
-
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//       });
-//     };
-
-//     filmPopupElement.onSubmitComment = (id, comment) => {
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].comments.push(comment);
-
-//       filmCard.reRender();
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//         showMore();
-//       });
-//     };
-
-//     filmPopupElement.onFilmDetailsChange = (id, newObject) => {
-
-//       const dataIndex = data.findIndex((it) => it.id === id);
-
-//       if (newObject.isAlreadyWatched !== data[dataIndex].isAlreadyWatched) {
-//         updateFiltersData(`HistoryFilms`, newObject.isAlreadyWatched);
-//         data[dataIndex].isAlreadyWatched = newObject.isAlreadyWatched;
-//       }
-//       if (newObject.isFavorite !== data[dataIndex].isFavorite) {
-//         updateFiltersData(`FavoritesFilms`, newObject.isFavorite);
-//         data[dataIndex].isFavorite = newObject.isFavorite;
-//       }
-//       if (newObject.isWatchList !== data[dataIndex].isWatchList) {
-//         updateFiltersData(`WatchlistFilms`, newObject.isWatchList);
-//         data[dataIndex].isWatchList = newObject.isWatchList;
-//       }
-
-//       filmCard.update(data[dataIndex]);
-//       filmCard.reRender();
-
-
-//       removeFilters(filters);
-//       renderFilters(filtersData);
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//         showMore();
-//       });
-//     };
-
-//     filmPopupElement.onClose = () => {
-//       filmPopupElement.unrender();
-//     };
-
-//     filmPopupElement.onScoreChange = (id, rating) => {
-
-//       const dataIndex = data.findIndex((it) => it.id === id);
-//       data[dataIndex].userRate = rating;
-
-//       return api.updateMovie({id, data: data[dataIndex].toRaw()})
-//       .then(() => {
-//         rerenderCards(whichCardsUpdate);
-//         showMore();
-//       });
-//     };
-//   }
-// };
-
-// const removeFilmCards = (filmCards) => {
-//   for (let i = 0; i < filmCards.length; i++) {
-//     let filmCard = filmCards[i];
-
-//     filmCard.unrender();
-//   }
-// };

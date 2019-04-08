@@ -1,4 +1,4 @@
-import ModelMovie from './model-movie.js';
+import ModelMovie from './modelMovie.js';
 
 const Method = {
   GET: `GET`,
