@@ -3,6 +3,8 @@ import {getStatsData} from './statistics.js';
 import Backend from './backend.js';
 import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
 import {getTopCommentData, renderTopComments, getTopRatedData, renderTopRated} from './render-extra-film-cards.js';
+import {removeFilmCards} from './remove-film-cards.js';
+import {getFiltersDataToChache,rerenderMainCards} from './main-film-cards-chache.js';
 
 const AUTHORIZATION = `Basic eo0w590ik56219a`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle/`;
@@ -20,14 +22,13 @@ export default (data, area, mainFilmCards, mainFilmPopupCards, whichCardsUpdate,
 
     const rerenderCards = () => {
       if (whichCardsUpdate === `main`) {
-        removeFilmCards(filmCards);
-        createCardsData(filmsData);
-        renderFilmCard(filmsData, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`, filmCards);
+        removeFilters();
+        renderFilters(filmsData);
+        rerenderMainCards(filmsData);
       }
 
       if (whichCardsUpdate === `extra`) {
         getTopCommentData(filmsData);
-        debugger;
         renderTopComments(filmsData);
         getTopRatedData(filmsData);
         renderTopRated(filmsData);

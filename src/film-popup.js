@@ -140,9 +140,9 @@ export default class FilmPopup extends Component {
           this._particularUpdate();
           this.bind();
         })
-        .catch(() => {
-          this._element.querySelector(`.film-details__controls`).style.cssText = `border: 1px solid red`;
-        })
+        // .catch(() => {
+        //   this._element.querySelector(`.film-details__controls`).style.cssText = `border: 1px solid red`;
+        // })
         .finally(() => {
           inputs.forEach((it) =>{
             it.disabled = false;
