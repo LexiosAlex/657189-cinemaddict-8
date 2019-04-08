@@ -561,7 +561,6 @@ const mainFunction = (filmsData) => {
     renderFilmCard(searchedArray, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
     removeFilters(filters);
     renderFilters(filtersData);
-    // FILTER
     showMore();
   }, 500));
 
@@ -571,7 +570,7 @@ const mainFunction = (filmsData) => {
 
     return function (...args) {
       const onComplete = () => {
-        f.apply(this, args);
+        f.apply(null, args);
         timer = null;
       };
 
