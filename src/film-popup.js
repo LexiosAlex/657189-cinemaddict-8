@@ -1,6 +1,7 @@
 import Component from './component.js';
 import createElement from './create-element.js';
 import moment from 'moment';
+
 export default class FilmPopup extends Component {
   constructor(data) {
     super();
@@ -18,6 +19,8 @@ export default class FilmPopup extends Component {
     this._actors = data.actors;
     this._country = data.country;
     this._id = data.id;
+    this._director = data.director;
+    this._writers = data.writers;
 
     this._isAlreadyWatched = data.isAlreadyWatched;
     this._isFavorite = data.isFavorite;
@@ -26,10 +29,17 @@ export default class FilmPopup extends Component {
     this._onSubmit = null;
     this._onClose = null;
     this._element = null;
+    this._onSumbitComment = null;
+
     this._onSubmitCommentKeyDown = this._onSubmitCommentKeyDown.bind(this);
     this._onButtonClose = this._onButtonClose.bind(this);
     this._onEmojiCommentChange = this._onEmojiCommentChange.bind(this);
     this._filmUnWathced = this._filmUnWathced.bind(this);
+    this._onStateButtonsClick = this._onStateButtonsClick.bind(this);
+    this._onScoreButtonsClick = this._onScoreButtonsClick.bind(this);
+
+    this._onFilmDetailsChange = null;
+    this._onScoreChange = null;
   }
 
   set onClose(fn) {
@@ -43,59 +53,50 @@ export default class FilmPopup extends Component {
 
   _onButtonClose(evt) {
     evt.preventDefault();
-    this.element.querySelector(`.film-details__comment-input`).textContent = ``;
-    this.element.querySelector(`.film-details__comment-input`).value = ``;
-    this._returnData();
     return typeof this._onClose === `function` && this._onClose();
-  }
-
-  _returnData() {
-    const formData = new FormData(this._element.querySelector(`.film-details__inner`));
-    const newData = this._processForm(formData);
-    this.update(newData);
-
-    if (typeof this._onSubmit === `function`) {
-      this._onSubmit(newData, this._id);
-    }
   }
 
   _onSubmitCommentKeyDown(evt) {
     if (evt.keyCode === 13 && evt.ctrlKey) {
-      this._returnData();
-      this.unbind();
-      this._particularUpdate();
-      this.bind();
+      const commenmtInput = this._element.querySelector(`.film-details__comment-input`);
+      commenmtInput.disabled = true;
+
+      const comment = {
+        addDate: Date.now(),
+        text: commenmtInput.value,
+        emoji: ` `,
+        author: `userName`,
+      };
+
+      this.element.querySelectorAll(`input[name = commentEmoji]`).forEach((it) => {
+        if (it.checked === true) {
+          comment.emoji = it.value;
+        }
+      });
+
+      if (typeof this._onSumbitComment === `function`) {
+        this._onSumbitComment(this._id, comment)
+        .then(() => {
+          commenmtInput.value = ` `;
+          this.unbind();
+          this._particularUpdate();
+          this.bind();
+        }).catch(() => {
+          commenmtInput.style.cssText = `border: 1px solid red`;
+        }).finally(() => {
+          commenmtInput.disabled = false;
+        });
+      }
     }
+  }
+
+  set onSubmitComment(fn) {
+    this._onSumbitComment = fn;
+
   }
 
   set onSubmit(fn) {
     this._onSubmit = fn;
-  }
-
-  _processForm(formData) {
-    const entry = {
-      userRate: ``,
-      isAlreadyWatched: false,
-      isFavorite: false,
-      isWatchList: false,
-      comment: {
-        addDate: Date.now(),
-        text: ``,
-        emoji: ``,
-        author: `userName`,
-      },
-    };
-
-    const filmPopupMapper = FilmPopup.createMapper(entry);
-
-    for (const pair of formData.entries()) {
-      const [property, value] = pair;
-      if (typeof filmPopupMapper[property] === `function`) {
-        filmPopupMapper[property](value);
-      }
-    }
-
-    return entry;
   }
 
   _parseEmoji(emoji) {
@@ -112,6 +113,76 @@ export default class FilmPopup extends Component {
   _filmUnWathced() {
     this._element.querySelector(`input[name=watched]`).checked = false;
     this._element.querySelector(`.film-details__watched-status`).classList.remove(`film-details__watched-status--active`);
+  }
+
+  set onFilmDetailsChange(fn) {
+    this._onFilmDetailsChange = fn;
+  }
+
+  _onStateButtonsClick() {
+    const newStateObject = {
+      isAlreadyWatched: this._element.querySelector(`input[name=watched]`).checked,
+      isFavorite: this._element.querySelector(`input[name=favorite]`).checked,
+      isWatchList: this._element.querySelector(`input[name=watchlist]`).checked,
+    };
+
+    const inputs = this._element.querySelectorAll(`.film-details__control-input`);
+
+    if (typeof this._onFilmDetailsChange === `function`) {
+      inputs.forEach((it) =>{
+        it.disabled = true;
+      });
+
+      this._onFilmDetailsChange(this._id, newStateObject)
+        .then(() => {
+          this.update(newStateObject);
+          this.unbind();
+          this._particularUpdate();
+          this.bind();
+        })
+        .catch(() => {
+          this._element.querySelector(`.film-details__controls`).style.cssText = `border: 1px solid red`;
+        })
+        .finally(() => {
+          inputs.forEach((it) =>{
+            it.disabled = false;
+          });
+        });
+    }
+  }
+
+  _onScoreButtonsClick(evt) {
+    const rating = evt.target.value;
+
+    const inputs = this._element.querySelectorAll(`input[name=score]`);
+
+    inputs.forEach((it) => {
+      it.disabled = true;
+    });
+
+    if (typeof this._onScoreChange === `function`) {
+      this._onScoreChange(this._id, rating)
+      .then(() => {
+        this._userRate = rating;
+        this.unbind();
+        this._particularUpdate();
+        this.bind();
+      })
+      .catch(() =>{
+        inputs.forEach((it) => {
+          it.style.cssText = `background-color: #770909`;
+        });
+      })
+      .finally(() =>{
+        inputs.forEach((it) =>{
+          it.disabled = false;
+        });
+      });
+    }
+  }
+
+  set onScoreChange(fn) {
+    this._onScoreChange = fn;
   }
 
   get template() {
@@ -148,20 +219,21 @@ export default class FilmPopup extends Component {
     detailsTable.director = `
       <tr class="film-details__row">
         <td class="film-details__term">Director</td>
-        <td class="film-details__cell">Brad Bird</td>
+        <td class="film-details__cell">${this._director}</td>
       </tr>
       `;
 
+    const writters = `${[...this._writers].map((writer) => `${writer}`).join(`,`)}`;
     detailsTable.writters = `
       <tr class="film-details__row">
         <td class="film-details__term">Writers</td>
-        <td class="film-details__cell">Brad Bird</td>
+        <td class="film-details__cell">${writters}</td>
       </tr>
       `;
 
     const actors = {};
 
-    actors.actor = `${[...this._actors].map((actor) => `${actor}`).join(`, `)}`;
+    actors.actor = `${[...this._actors].map((actor) => `${actor}`).join(`,`)}`;
 
     detailsTable.actors = `
       <tr class="film-details__row">
@@ -278,7 +350,7 @@ export default class FilmPopup extends Component {
     const getRatingString = (rating) => {
       const arr = [];
       for (let i = 0; i < 10; i++) {
-        if (rating === i.toString()) {
+        if (rating && rating.toString() === i.toString()) {
           arr[i] = `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i}" id="rating-${i}" checked>
                   <label class="film-details__user-rating-label" for="rating-${i}">${i}</label>`;
         } else {
@@ -359,6 +431,12 @@ export default class FilmPopup extends Component {
     this.element.querySelector(`.film-details__watched-reset`)
       .addEventListener(`click`, this._filmUnWathced);
     document.addEventListener(`keydown`, this._onSubmitCommentKeyDown);
+    this.element.querySelectorAll(`.film-details__control-input`).forEach((it) => {
+      it.addEventListener(`click`, this._onStateButtonsClick);
+    });
+    this.element.querySelectorAll(`input[name=score]`).forEach((it) => {
+      it.addEventListener(`click`, this._onScoreButtonsClick);
+    });
   }
 
   render() {
@@ -376,39 +454,21 @@ export default class FilmPopup extends Component {
     this.element.querySelector(`.film-details__watched-reset`)
       .removeEventListener(`click`, this._filmUnWathced);
     document.removeEventListener(`keydown`, this._onSubmitCommentKeyDown);
+    this.element.querySelectorAll(`.film-details__control-input`).forEach((it) => {
+      it.removeEventListener(`click`, this._onStateButtonsClick);
+    });
+    this.element.querySelectorAll(`input[name=score]`).forEach((it) => {
+      it.removeEventListener(`click`, this._onScoreButtonsClick);
+    });
   }
 
   update(upData) {
-    this._userRate = upData.userRate;
-    if (upData.comment && upData.comment.text.length) {
-      this._comments.push(upData.comment);
+    if (upData.userRate) {
+      this._userRate = upData.userRate;
     }
     this._isAlreadyWatched = upData.isAlreadyWatched;
     this._isFavorite = upData.isFavorite;
     this._isWatchList = upData.isWatchList;
-  }
-
-  static createMapper(target) {
-    return {
-      commentEmoji: (value) => {
-        target.comment.emoji = value;
-      },
-      comment: (value) => {
-        target.comment.text = value;
-      },
-      score: (value) => {
-        target.userRate = value;
-      },
-      watchlist: () => {
-        target.isWatchList = true;
-      },
-      watched: () => {
-        target.isAlreadyWatched = true;
-      },
-      favorite: () => {
-        target.isFavorite = true;
-      },
-    };
   }
 
 }

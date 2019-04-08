@@ -25,9 +25,9 @@
 <main class="main">
   <nav class="main-navigation">
     <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
-    <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">13</span></a>
-    <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count">4</span></a>
-    <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">8</span></a>
+    <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count"></span></a>
+    <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count"></span></a>
+    <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count"></span></a>
     <a href="#stats" class="main-navigation__item main-navigation__item--additional">Stats</a>
   </nav>
 
@@ -44,66 +44,14 @@
     <section class="films-list--extra">
       <h2 class="films-list__title">Top rated</h2>
 
-      <div class="films-list__container">
-        <article class="film-card film-card--no-controls">
-          <h3 class="film-card__title">Incredibles 2</h3>
-          <p class="film-card__rating">9.8</p>
-          <p class="film-card__info">
-            <span class="film-card__year">2018</span>
-            <span class="film-card__duration">1h&nbsp;13m</span>
-            <span class="film-card__genre">Comedy</span>
-          </p>
-          <img src="./images/posters/fuga-da-new-york.jpg" alt="" class="film-card__poster">
-          <button class="film-card__comments">13 comments</button>
-        </article>
-
-        <article class="film-card film-card--no-controls">
-          <h3 class="film-card__title">Incredibles 2</h3>
-          <p class="film-card__rating">9.8</p>
-          <p class="film-card__info">
-            <span class="film-card__year">2018</span>
-            <span class="film-card__duration">1h&nbsp;13m</span>
-            <span class="film-card__genre">Comedy</span>
-          </p>
-          <img src="./images/posters/blue-blazes.jpg" alt="" class="film-card__poster">
-
-          <button class="film-card__comments">13 comments</button>
-        </article>
+      <div class="films-list__container films-list__container--top-rated">
       </div>
     </section>
 
     <section class="films-list--extra">
       <h2 class="films-list__title">Most commented</h2>
 
-      <div class="films-list__container">
-        <article class="film-card film-card--no-controls">
-          <h3 class="film-card__title">Incredibles 2</h3>
-          <p class="film-card__rating">9.8</p>
-          <p class="film-card__info">
-            <span class="film-card__year">2018</span>
-            <span class="film-card__duration">1h&nbsp;13m</span>
-            <span class="film-card__genre">Comedy</span>
-          </p>
-
-          <img src="./images/posters/accused.jpg" alt="Accused" class="film-card__poster">
-
-          <button class="film-card__comments">13 comments</button>
-        </article>
-
-        <article class="film-card film-card--no-controls">
-          <h3 class="film-card__title">Incredibles 2</h3>
-          <p class="film-card__rating">9.8</p>
-
-          <p class="film-card__info">
-            <span class="film-card__year">2018</span>
-            <span class="film-card__duration">1h&nbsp;13m</span>
-            <span class="film-card__genre">Comedy</span>
-          </p>
-
-          <img src="./images/posters/blackmail.jpg" alt="" class="film-card__poster">
-
-          <button class="film-card__comments">13 comments</button>
-        </article>
+      <div class="films-list__container films-list__container--top-commented">
       </div>
     </section>
   </section>

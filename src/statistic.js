@@ -15,9 +15,25 @@ export default class Statistic extends Component {
   }
 
   get template() {
+
+    let userRank = `undefined`;
+
+    if (this._moviesCount < 11) {
+      userRank = `novice`;
+    }
+
+    if (this._moviesCount < 21 & this._moviesCount > 10) {
+      userRank = `fan`;
+    }
+
+    if (this._moviesCount > 20) {
+      userRank = `movie buff`;
+    }
+
+
     return `
     <div>
-      <p class="statistic__rank">Your rank <span class="statistic__rank-label">Sci-Fighter</span></p>
+      <p class="statistic__rank">Your rank <span class="statistic__rank-label">${userRank}</span></p>
 
       <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters visually-hidden">
         <p class="statistic__filters-description">Show stats:</p>
