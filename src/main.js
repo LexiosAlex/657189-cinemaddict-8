@@ -4,12 +4,17 @@ import FilmPopup from './film-popup.js';
 import Statistics from './statistic.js';
 import Filter from './filter.js';
 import Backend from './backend.js';
+import Provider from './provider.js';
+import Store from './store.js';
 
-const AUTHORIZATION = `Basic eo0w590ik56219a`;
+const AUTHORIZATION = `Basic eo0w597ik56219a`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle/`;
 const apiData = {endPoint: END_POINT, authorization: AUTHORIZATION};
+const MOVIES_STORE_KEY = `tasks-store-key`;
 
+const store = new Store({key: MOVIES_STORE_KEY, storage: localStorage});
 const api = new Backend(apiData);
+const provider = new Provider({api, store});
 
 const template = `<div>Loading movies...</div>`;
 const messageTemplate = document.createElement(`div`);
@@ -29,7 +34,13 @@ messageTemplate.style.cssText = `
 `;
 FILMS_LIST_MAIN.appendChild(messageTemplate);
 
-api.getMovie()
+window.addEventListener(`offline`, () => document.title = `${document.title}[OFFLINE]`);
+window.addEventListener(`online`, () => {
+  document.title = document.title.split(`[OFFLINE]`)[0];
+  provider.syncMovies();
+});
+
+provider.getMovie()
   .then((films) =>{
     mainFunction(films);
     messageTemplate.classList.add(`visually-hidden`);
@@ -141,8 +152,7 @@ const mainFunction = (filmsData) => {
         renderFilters(filtersData);
         getStatsData();
 
-
-        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        return provider.updateMovie({id, data: data[dataIndex].toRaw()})
         .then(() => {
           rerenderCards(whichCardsUpdate);
         });
@@ -160,7 +170,7 @@ const mainFunction = (filmsData) => {
         removeFilters(filters);
         renderFilters(filtersData);
 
-        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        return provider.updateMovie({id, data: data[dataIndex].toRaw()})
         .then(() => {
           rerenderCards(whichCardsUpdate);
         });
@@ -178,7 +188,7 @@ const mainFunction = (filmsData) => {
         removeFilters(filters);
         renderFilters(filtersData);
 
-        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        return provider.updateMovie({id, data: data[dataIndex].toRaw()})
         .then(() => {
           rerenderCards(whichCardsUpdate);
         });
@@ -189,12 +199,25 @@ const mainFunction = (filmsData) => {
         data[dataIndex].comments.push(comment);
 
         filmCard.reRender();
-        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        return provider.updateMovie({id, data: data[dataIndex].toRaw()})
         .then(() => {
           rerenderCards(whichCardsUpdate);
           showMore();
         });
       };
+
+      filmPopupElement.onUndoLastComment = (id, comments) => {
+        const dataIndex = data.findIndex((it) => it.id === id);
+        data[dataIndex].comments = comments;
+
+        filmCard.reRender();
+
+        return provider.updateMovie({id, data: data[dataIndex].toRaw()})
+        .then(() => {
+          rerenderCards(whichCardsUpdate);
+          showMore();
+        });
+      }
 
       filmPopupElement.onFilmDetailsChange = (id, newObject) => {
 
@@ -219,10 +242,9 @@ const mainFunction = (filmsData) => {
 
         removeFilters(filters);
         renderFilters(filtersData);
-        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        return provider.updateMovie({id, data: data[dataIndex].toRaw()})
         .then(() => {
           rerenderCards(whichCardsUpdate);
-          showMore();
         });
       };
 
@@ -234,20 +256,16 @@ const mainFunction = (filmsData) => {
 
         const dataIndex = data.findIndex((it) => it.id === id);
         data[dataIndex].userRate = rating;
-
-        return api.updateMovie({id, data: data[dataIndex].toRaw()})
+        return provider.updateMovie({id, data: data[dataIndex].toRaw()})
         .then(() => {
           rerenderCards(whichCardsUpdate);
-          showMore();
         });
       };
     }
   };
 
   const removeFilmCards = (cards) => {
-    for (let i = 0; i < cards.length; i++) {
-      let filmCard = cards[i];
-
+    for (const filmCard of cards) {
       filmCard.unrender();
     }
   };
@@ -570,7 +588,7 @@ const mainFunction = (filmsData) => {
 
     return function (...args) {
       const onComplete = () => {
-        f.apply(null, args);
+        f(...args);
         timer = null;
       };
 

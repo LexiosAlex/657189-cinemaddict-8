@@ -30,6 +30,7 @@ export default class FilmPopup extends Component {
     this._onClose = null;
     this._element = null;
     this._onSumbitComment = null;
+    this._onUndoLastComment = null;
 
     this._onSubmitCommentKeyDown = this._onSubmitCommentKeyDown.bind(this);
     this._onButtonClose = this._onButtonClose.bind(this);
@@ -37,6 +38,7 @@ export default class FilmPopup extends Component {
     this._filmUnWathced = this._filmUnWathced.bind(this);
     this._onStateButtonsClick = this._onStateButtonsClick.bind(this);
     this._onScoreButtonsClick = this._onScoreButtonsClick.bind(this);
+    this._onButtonCloseKeydown = this._onButtonCloseKeydown.bind(this);
 
     this._onFilmDetailsChange = null;
     this._onScoreChange = null;
@@ -54,6 +56,12 @@ export default class FilmPopup extends Component {
   _onButtonClose(evt) {
     evt.preventDefault();
     return typeof this._onClose === `function` && this._onClose();
+  }
+
+  _onButtonCloseKeydown(evt) {
+    if (evt.keyCode === 27){
+      return typeof this._onClose === `function` && this._onClose();
+    }
   }
 
   _onSubmitCommentKeyDown(evt) {
@@ -81,6 +89,7 @@ export default class FilmPopup extends Component {
           this.unbind();
           this._particularUpdate();
           this.bind();
+          this.element.querySelector(`.film-details__watched-reset`).classList.remove(`visually-hidden`);
         }).catch(() => {
           commenmtInput.style.cssText = `border: 1px solid red`;
         }).finally(() => {
@@ -90,9 +99,12 @@ export default class FilmPopup extends Component {
     }
   }
 
+  set onUndoLastComment(fn) {
+    this._onUndoLastComment = fn;
+  }
+
   set onSubmitComment(fn) {
     this._onSumbitComment = fn;
-
   }
 
   set onSubmit(fn) {
@@ -113,6 +125,22 @@ export default class FilmPopup extends Component {
   _filmUnWathced() {
     this._element.querySelector(`input[name=watched]`).checked = false;
     this._element.querySelector(`.film-details__watched-status`).classList.remove(`film-details__watched-status--active`);
+    const lastComment = this._comments[this._comments.length - 1];
+
+    console.log(lastComment);
+    if (typeof this._onUndoLastComment === `function` && lastComment.author === `userName`) {
+      this._comments.pop();
+      this._onUndoLastComment(this._id, this._comments)
+        .then(() => {
+          this.unbind();
+          this._particularUpdate();
+          this.bind();
+          this.element.querySelector(`.film-details__watched-reset`).classList.add(`visually-hidden`);
+        })
+        .catch(() => {
+          this.element.querySelector(`.film-details__watched-reset`).style.cssText = `border: 1px solid red`;
+        });
+    }
   }
 
   set onFilmDetailsChange(fn) {
@@ -365,9 +393,9 @@ export default class FilmPopup extends Component {
       <section class="film-details__user-rating-wrap">
         <div class="film-details__user-rating-controls">
 
-          <span class="film-details__watched-status ${this._isAlreadyWatched ? `film-details__watched-status--active` : ``}">Already watched</span>
+          <span class="film-details__watched-status ${this._isAlreadyWatched ? `film-details__watched-status--active` : ``}">${this._isAlreadyWatched ? `Already watched` : `will Watch`}</span>
 
-          <button class="film-details__watched-reset" type="button">undo</button>
+          <button class="film-details__watched-reset visually-hidden" type="button">undo</button>
         </div>
 
         <div class="film-details__user-score">
@@ -425,6 +453,7 @@ export default class FilmPopup extends Component {
   bind() {
     this.element.querySelector(`.film-details__close-btn`)
       .addEventListener(`click`, this._onButtonClose);
+    document.addEventListener(`keydown`, this._onButtonCloseKeydown);
     this.element.querySelectorAll(`input[name = commentEmoji]`).forEach((it) => {
       it.addEventListener(`click`, this._onEmojiCommentChange);
     });
@@ -448,6 +477,7 @@ export default class FilmPopup extends Component {
   unbind() {
     this.element.querySelector(`.film-details__close-btn`)
       .removeEventListener(`click`, this._onButtonClose);
+    document.removeEventListener(`keydown`, this._onButtonCloseKeydown);
     this.element.querySelectorAll(`input[name = commentEmoji]`).forEach((it) => {
       it.removeEventListener(`click`, this._onEmojiCommentChange);
     });
