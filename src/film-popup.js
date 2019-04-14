@@ -59,8 +59,8 @@ export default class FilmPopup extends Component {
   }
 
   _onButtonCloseKeydown(evt) {
-    if (evt.keyCode === 27){
-      return typeof this._onClose === `function` && this._onClose();
+    if (evt.keyCode === 27 && typeof this._onClose === `function`) {
+      this._onClose();
     }
   }
 
@@ -127,7 +127,6 @@ export default class FilmPopup extends Component {
     this._element.querySelector(`.film-details__watched-status`).classList.remove(`film-details__watched-status--active`);
     const lastComment = this._comments[this._comments.length - 1];
 
-    console.log(lastComment);
     if (typeof this._onUndoLastComment === `function` && lastComment.author === `userName`) {
       this._comments.pop();
       this._onUndoLastComment(this._id, this._comments)

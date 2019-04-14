@@ -21,7 +21,7 @@ export default class Provider {
     } else {
       const rawMoviesMap = this._store.getAll();
       const rawMovies = objectToArray(rawMoviesMap);
-      const tasks = ModelMovie.parseMovie(rawMovies);
+      const movies = ModelMovie.parseMovies(rawMovies);
 
       return Promise.resolve(movies);
     }
@@ -34,7 +34,7 @@ export default class Provider {
           this._store.setItem({key: film.id, item: film.toRaw()});
           return film;
         });
-        } else {
+    } else {
       const movie = data;
       this._needSync = true;
       this._store.setItem({key: movie.id, item: movie});
@@ -47,6 +47,9 @@ export default class Provider {
   }
 
   syncMovies() {
-    return this._api.syncMovies({movies: objectToArray(this._store.getAll())});
+    if (this._needSync) {
+      return this._api.syncMovies({movies: objectToArray(this._store.getAll())});
+    }
+    return Promise.resolve();
   }
-};
+}

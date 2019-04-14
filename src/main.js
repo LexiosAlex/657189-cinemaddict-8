@@ -34,7 +34,7 @@ messageTemplate.style.cssText = `
 `;
 FILMS_LIST_MAIN.appendChild(messageTemplate);
 
-window.addEventListener(`offline`, () => document.title = `${document.title}[OFFLINE]`);
+window.addEventListener(`offline`, () => {document.title = `${document.title}[OFFLINE]`});
 window.addEventListener(`online`, () => {
   document.title = document.title.split(`[OFFLINE]`)[0];
   provider.syncMovies();
@@ -45,10 +45,10 @@ provider.getMovie()
     mainFunction(films);
     messageTemplate.classList.add(`visually-hidden`);
   })
-  .catch(() => {
-    messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
-    messageTemplate.style.border = `2px solid red`;
-  });
+  // .catch(() => {
+  //   messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
+  //   messageTemplate.style.border = `2px solid red`;
+  // });
 
 const mainFunction = (filmsData) => {
   let filmCards = [];
@@ -146,11 +146,16 @@ const mainFunction = (filmsData) => {
 
         updateFiltersData(`HistoryFilms`, state);
         filmPopupElement.update(data[dataIndex]);
+        if (state) {
+          data[dataIndex].watchingDate = Date.now();
+        } else {
+          data[dataIndex].watchingDate = null;
+        }
         filmCard.reRender();
 
         removeFilters(filters);
         renderFilters(filtersData);
-        getStatsData();
+        statisticComponent.getStatisticData(filmsData);
 
         return provider.updateMovie({id, data: data[dataIndex].toRaw()})
         .then(() => {
@@ -217,7 +222,7 @@ const mainFunction = (filmsData) => {
           rerenderCards(whichCardsUpdate);
           showMore();
         });
-      }
+      };
 
       filmPopupElement.onFilmDetailsChange = (id, newObject) => {
 
@@ -225,6 +230,11 @@ const mainFunction = (filmsData) => {
 
         if (newObject.isAlreadyWatched !== data[dataIndex].isAlreadyWatched) {
           updateFiltersData(`HistoryFilms`, newObject.isAlreadyWatched);
+          if (newObject.isAlreadyWatched === false) {
+            data[dataIndex].watchingDate = null;
+          } else {
+            data[dataIndex].watchingDate = Date.now();
+          }
           data[dataIndex].isAlreadyWatched = newObject.isAlreadyWatched;
         }
         if (newObject.isFavorite !== data[dataIndex].isFavorite) {
@@ -459,61 +469,9 @@ const mainFunction = (filmsData) => {
 
   let statisticComponent = null;
 
-  const getStatsData = () => {
-    const statsData = {};
-    const historyArray = filmsData.filter((it) => it.isAlreadyWatched === true);
-
-    let totalMins = 0;
-
-    historyArray.forEach((it) =>{
-      totalMins += it.duration;
-    });
-
-    let genresSet = new Set([]);
-
-    historyArray.forEach((it) => {
-      it.genres.forEach((genre) => {
-        genresSet.add(genre);
-      });
-    });
-
-    let genresArray = [];
-    genresSet.forEach((setGenre) =>{
-      let genreObject = {};
-      genreObject.genre = setGenre;
-      genreObject.count = 0;
-      historyArray.filter((it) => {
-        it.genres.forEach((elem) => {
-          if (setGenre === elem) {
-            genreObject.count++;
-          }
-        });
-      });
-      genresArray.push(genreObject);
-    });
-
-    genresArray.sort((a, b) => {
-      return b.count - a.count;
-    });
-
-    let genres = [];
-    let genresCount = [];
-    genresArray.forEach((it) => {
-      genres.push(it.genre);
-      genresCount.push(it.count);
-    });
-
-    statsData.genresCount = genresCount;
-    statsData.genres = genres;
-    statsData.totaltime = totalMins;
-    statsData.moviesCount = historyArray.length;
-
-    return statsData;
-  };
-
   const renderStatsComponent = () => {
-    const statsData = getStatsData();
-    statisticComponent = new Statistics(statsData);
+    statisticComponent = new Statistics(filmsData);
+    statisticComponent.getStatisticData(filmsData);
     statisticArea.appendChild(statisticComponent.render());
     statisticComponent.statisticDiagram();
   };
