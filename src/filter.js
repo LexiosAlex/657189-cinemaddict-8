@@ -13,12 +13,16 @@ export default class Filter extends Component {
     this._onFilterButtonClick = this._onFilterButtonClick.bind(this);
   }
 
+  get id() {
+    return this._id;
+  }
+
   set onFilterClick(fn) {
     this._onFilterClick = fn;
   }
 
   _onFilterButtonClick() {
-    return typeof this._onFilterClick === `function` && this._onFilterClick();
+    return typeof this._onFilterClick === `function` && this._onFilterClick(this._id);
   }
 
   get template() {
@@ -27,6 +31,10 @@ export default class Filter extends Component {
       ${this._amount ? `<span class="main-navigation__item-count">${this._amount}</span>` : ` `}
     </a>
     `.trim();
+  }
+
+  update({amount}) {
+    this._amount = amount;
   }
 
   deActivate() {
@@ -49,5 +57,10 @@ export default class Filter extends Component {
     this.unbind();
     this._particularUpdate();
     this.bind();
+    if (this._active) {
+      this._element.classList.add(`main-navigation__item--active`);
+    } else {
+      this._element.classList.remove(`main-navigation__item--active`);
+    }
   }
 }

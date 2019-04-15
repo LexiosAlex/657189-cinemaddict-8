@@ -14,6 +14,14 @@ export default class Statistic extends Component {
     this._moviesCount = null;
     this._onStatisticFilterClick = this._onStatisticFilterClick.bind(this);
     this._element = null;
+
+    this._filtersState = new Map([
+      [`allTime`, true],
+      // [`today`, false],
+      // [`week`, false],
+      // [`month`, false],
+      // [`year`, false]
+    ]);
   }
 
   getStatisticData(filmsData) {
@@ -66,17 +74,20 @@ export default class Statistic extends Component {
     let filteredArray = [];
     switch (evt.target.value) {
       case (`all-time`):
+        this._filtersState.clear();
+        this._filtersState.set(`allTime`, true);
         this.getStatisticData(this._filmsData);
         this.reRender();
         this.statisticDiagram();
         break;
-
       case (`today`):
         this._filmsData.forEach((it) => {
           if ((Date.now() - it.watchingDate) / 1000 < 86400) {
             filteredArray.push(it);
           }
         });
+        this._filtersState.clear();
+        this._filtersState.set(`today`, true);
         this.getStatisticData(filteredArray);
         this.reRender();
         this.statisticDiagram();
@@ -88,6 +99,8 @@ export default class Statistic extends Component {
             filteredArray.push(it);
           }
         });
+        this._filtersState.clear();
+        this._filtersState.set(`week`, true);
         this.getStatisticData(filteredArray);
         this.reRender();
         this.statisticDiagram();
@@ -99,6 +112,8 @@ export default class Statistic extends Component {
             filteredArray.push(it);
           }
         });
+        this._filtersState.clear();
+        this._filtersState.set(`month`, true);
         this.getStatisticData(filteredArray);
         this.reRender();
         this.statisticDiagram();
@@ -110,6 +125,8 @@ export default class Statistic extends Component {
             filteredArray.push(it);
           }
         });
+        this._filtersState.clear();
+        this._filtersState.set(`year`, true);
         this.getStatisticData(filteredArray);
         this.reRender();
         this.statisticDiagram();
@@ -141,22 +158,21 @@ export default class Statistic extends Component {
       <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">
         <p class="statistic__filters-description">Show stats:</p>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-all-time" value="all-time" checked>
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-all-time" value="all-time"${this._filtersState.get(`allTime`) ? `checked` : ``}>
         <label for="statistic-all-time" class="statistic__filters-label">All time</label>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-today" value="today">
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-today" value="today"${this._filtersState.get(`today`) ? `checked` : ``}>
         <label for="statistic-today" class="statistic__filters-label">Today</label>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-week" value="week">
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-week" value="week"${this._filtersState.get(`week`) ? `checked` : ``}>
         <label for="statistic-week" class="statistic__filters-label">Week</label>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-month" value="month">
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-month" value="month"${this._filtersState.get(`month`) ? `checked` : ``}>
         <label for="statistic-month" class="statistic__filters-label">Month</label>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-year" value="year">
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-year" value="year"${this._filtersState.get(`year`) ? `checked` : ``}>
         <label for="statistic-year" class="statistic__filters-label">Year</label>
       </form>
-
       <ul class="statistic__text-list">
         <li class="statistic__text-item">
           <h4 class="statistic__item-title">You watched</h4>
