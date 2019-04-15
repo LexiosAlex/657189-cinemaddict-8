@@ -7,7 +7,7 @@ import Backend from './backend.js';
 import Provider from './provider.js';
 import Store from './store.js';
 
-import {createFilters, showFilms, hideFilms, unrenderFilters} from './filters.js';
+import {createFilters, showFilms, hideFilms, unrenderFilters, getFavoritesFilter, getHistoryFilter, getWatchListFilter} from './filters.js';
 
 const AUTHORIZATION = `Basic eo0w597ik56219a`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle/`;
@@ -37,7 +37,7 @@ messageTemplate.style.cssText = `
 FILMS_LIST_MAIN.appendChild(messageTemplate);
 
 window.addEventListener(`offline`, () => {
-  document.title = `${document.title}[OFFLINE]`
+  document.title = `${document.title}[OFFLINE]`;
 });
 window.addEventListener(`online`, () => {
   document.title = document.title.split(`[OFFLINE]`)[0];
@@ -114,7 +114,7 @@ const mainFunction = (filmsData) => {
 
         const filter = filters[filters.findIndex((it) => it.id === `HistoryFilms`)];
         const amount = filmsData.filter((it) => it.isAlreadyWatched === true).length;
-        filter.update({ amount });
+        filter.update({amount});
         filter.reRender();
 
         statisticComponent.getStatisticData(filmsData);
@@ -134,7 +134,7 @@ const mainFunction = (filmsData) => {
 
         const filter = filters[filters.findIndex((it) => it.id === `FavoritesFilms`)];
         const amount = filmsData.filter((it) => it.isFavorite === true).length;
-        filter.update({ amount });
+        filter.update({amount});
         filter.reRender();
 
         return provider.updateMovie({id, data: data[dataIndex].toRaw()})
@@ -152,7 +152,7 @@ const mainFunction = (filmsData) => {
 
         const filter = filters[filters.findIndex((it) => it.id === `WatchlistFilms`)];
         const amount = filmsData.filter((it) => it.isWatchList === true).length;
-        filter.update({ amount });
+        filter.update({amount});
         filter.reRender();
 
         return provider.updateMovie({id, data: data[dataIndex].toRaw()})
@@ -224,7 +224,7 @@ const mainFunction = (filmsData) => {
         filmCard.update(data[dataIndex]);
         filmCard.reRender();
 
-        filter.update({ amount });
+        filter.update({amount});
         filter.reRender();
 
         return provider.updateMovie({id, data: data[dataIndex].toRaw()})
@@ -329,35 +329,35 @@ const mainFunction = (filmsData) => {
 
       let filteredFilms;
       switch (id) {
-        case 'AllFilms':
+        case `AllFilms`:
           showFilms();
           filteredFilms = filmsData;
           createCardsData(filteredFilms);
           renderFilmCard(filteredFilms, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
           break;
 
-        case 'WatchlistFilms':
+        case `WatchlistFilms`:
           showFilms();
           filteredFilms = filmsData.filter((it) => it.isWatchList === true);
           createCardsData(filteredFilms);
           renderFilmCard(filteredFilms, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
           break;
 
-        case 'HistoryFilms':
+        case `HistoryFilms`:
           showFilms();
           filteredFilms = filmsData.filter((it) => it.isAlreadyWatched === true);
           createCardsData(filteredFilms);
           renderFilmCard(filteredFilms, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
           break;
 
-        case 'FavoritesFilms':
+        case `FavoritesFilms`:
           showFilms();
           filteredFilms = filmsData.filter((it) => it.isFavorite === true);
           createCardsData(filteredFilms);
           renderFilmCard(filteredFilms, FILMS_LIST_MAIN, filmCards, filmPopupCards, `extra`);
           break;
 
-        case 'Stats':
+        case `Stats`:
           hideFilms();
           unrenderStatsComponent();
           renderStatsComponent();
