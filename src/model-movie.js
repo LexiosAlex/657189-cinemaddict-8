@@ -37,6 +37,7 @@ export default class ModelMovie {
     data[`film_info`][`genre`].forEach((it) => {
       this.genres.add(it);
     });
+    this.watchingDate = new Date(data[`user_details`][`watching_date`]);
   }
 
   toRaw() {
@@ -63,7 +64,8 @@ export default class ModelMovie {
         'personal_rating': this.userRate,
         'watchlist': this.isWatchList,
         'already_watched': this.isAlreadyWatched,
-        'favorite': this.isFavorite
+        'favorite': this.isFavorite,
+        'watching_date': this.watchingDate
       },
       'comments': this.comments.map((it) => ({
         'author': it.author,
