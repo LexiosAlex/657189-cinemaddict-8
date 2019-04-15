@@ -35,6 +35,9 @@ export default class Film extends Component {
     this._controlsDeactivate = data.controlsDeactivate;
   }
 
+  get filmId() {
+    return this._id;
+  }
 
   set onAddToFavorite(fn) {
     this._onAddToFavorite = fn;
