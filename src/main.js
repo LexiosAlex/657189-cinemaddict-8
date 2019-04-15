@@ -49,10 +49,10 @@ provider.getMovie()
     mainFunction(films);
     messageTemplate.classList.add(`visually-hidden`);
   })
-  // .catch(() => {
-  //   messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
-  //   messageTemplate.style.border = `2px solid red`;
-  // });
+  .catch(() => {
+    messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
+    messageTemplate.style.border = `2px solid red`;
+  });
 
 const mainFunction = (filmsData) => {
   let filmCards = [];
