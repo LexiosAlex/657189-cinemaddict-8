@@ -20,9 +20,9 @@ FILMS_LIST_MAIN.appendChild(messageTemplate);
 
 export const hideLoadMassage = () => {
   messageTemplate.classList.add(`visually-hidden`);
-}
+};
 
-export const  erorMassage = () => {
-    messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
-    messageTemplate.style.border = `2px solid red`;
-}
+export const erorMassage = () => {
+  messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
+  messageTemplate.style.border = `2px solid red`;
+};

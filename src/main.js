@@ -1,7 +1,7 @@
 import {FILTERS_AREA, FILMS_LIST_MAIN, AUTHORIZATION, END_POINT, MOVIES_STORE_KEY, TOP_COMM_AREA, TOP_RATE_AREA, STISTIC_AREA, PROFILE_RATING_AREA, SHOW_MORE_BUTTON} from './export-const.js';
 import FilmPopup from './film-popup.js';
 import Statistics from './statistic.js';
-import {renderFilmCard, removeFilmCards} from './render-film-card.js';
+import {renderFilmCards, removeFilmCards} from './render-film-card.js';
 import {getTopCommentData, getTopRatedData} from './extra-film-cards.js';
 import {createCardsData} from './create-cards-data.js';
 import {hideLoadMassage, erorMassage} from './load-message.js';
@@ -129,6 +129,7 @@ const mainFunction = (filmsData) => {
     };
   };
 
+
   const activateFilmCardsCb = (card, filmId) => {
     let filmPopupCard;
 
@@ -201,7 +202,7 @@ const mainFunction = (filmsData) => {
     };
   };
 
-  renderFilmCard(FILMS_LIST_MAIN, filmCards);
+  renderFilmCards(FILMS_LIST_MAIN, filmCards);
 
   const activateFilmCards = (cards) => {
     cards.forEach((it) => {
@@ -221,13 +222,13 @@ const mainFunction = (filmsData) => {
     topCommsData = getTopCommentData(filmsData);
     removeFilmCards(commentFilmCards);
     commentFilmCards = createCardsData(topCommsData);
-    renderFilmCard(TOP_COMM_AREA, commentFilmCards);
+    renderFilmCards(TOP_COMM_AREA, commentFilmCards);
     activateFilmCards(commentFilmCards);
 
     topRateData = getTopRatedData(filmsData);
     removeFilmCards(topRatedFilmCards);
     topRatedFilmCards = createCardsData(topRateData);
-    renderFilmCard(TOP_RATE_AREA, topRatedFilmCards);
+    renderFilmCards(TOP_RATE_AREA, topRatedFilmCards);
     activateFilmCards(topRatedFilmCards);
   };
 
@@ -245,7 +246,7 @@ const mainFunction = (filmsData) => {
           showFilms();
           filteredFilms = filmsData;
           filmCards = createCardsData(filteredFilms, true);
-          renderFilmCard(FILMS_LIST_MAIN, filmCards);
+          renderFilmCards(FILMS_LIST_MAIN, filmCards);
           activateFilmCards(filmCards);
           break;
 
@@ -253,7 +254,7 @@ const mainFunction = (filmsData) => {
           showFilms();
           filteredFilms = filmsData.filter((it) => it.isWatchList === true);
           filmCards = createCardsData(filteredFilms, true);
-          renderFilmCard(FILMS_LIST_MAIN, filmCards);
+          renderFilmCards(FILMS_LIST_MAIN, filmCards);
           activateFilmCards(filmCards);
           break;
 
@@ -261,7 +262,7 @@ const mainFunction = (filmsData) => {
           showFilms();
           filteredFilms = filmsData.filter((it) => it.isAlreadyWatched === true);
           filmCards = createCardsData(filteredFilms, true);
-          renderFilmCard(FILMS_LIST_MAIN, filmCards);
+          renderFilmCards(FILMS_LIST_MAIN, filmCards);
           activateFilmCards(filmCards);
           break;
 
@@ -269,7 +270,7 @@ const mainFunction = (filmsData) => {
           showFilms();
           filteredFilms = filmsData.filter((it) => it.isFavorite === true);
           filmCards = createCardsData(filteredFilms, true);
-          renderFilmCard(FILMS_LIST_MAIN, filmCards);
+          renderFilmCards(FILMS_LIST_MAIN, filmCards);
           activateFilmCards(filmCards);
           break;
 
@@ -395,7 +396,7 @@ const mainFunction = (filmsData) => {
     filters[filters.findIndex((it) => it.id === `AllFilms`)].activate();
     removeFilmCards(filmCards);
     filmCards = createCardsData(searchedArray, true);
-    renderFilmCard(FILMS_LIST_MAIN, filmCards);
+    renderFilmCards(FILMS_LIST_MAIN, filmCards);
     activateFilmCards(filmCards);
     filters.forEach((it) =>{
       it.reRender();
