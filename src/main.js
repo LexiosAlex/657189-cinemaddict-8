@@ -131,10 +131,8 @@ const mainFunction = (filmsData) => {
 
 
   const activateFilmCardsCb = (card, filmId) => {
-    let filmPopupCard;
-
     card.onComments = () => {
-      filmPopupCard = new FilmPopup(filmsData[filmId]);
+      const filmPopupCard = new FilmPopup(filmsData[filmId]);
       document.body.appendChild(filmPopupCard.render());
       activateFilmPopupCardCdb(filmPopupCard);
     };
@@ -142,9 +140,6 @@ const mainFunction = (filmsData) => {
     card.onMarkAsWatched = (state, id) => {
       const dataIndex = filmsData.findIndex((it) => it.id === id);
       filmsData[dataIndex].isAlreadyWatched = state;
-
-      filmPopupCard = new FilmPopup(filmsData[dataIndex]);
-
       if (state) {
         filmsData[dataIndex].watchingDate = Date.now();
       } else {
@@ -168,8 +163,6 @@ const mainFunction = (filmsData) => {
     card.onAddToFavorite = (state, id) => {
       const dataIndex = filmsData.findIndex((it) => it.id === id);
       filmsData[dataIndex].isFavorite = state;
-
-      filmPopupCard = new FilmPopup(filmsData[dataIndex]);
       card.reRender();
 
       const filter = filters[filters.findIndex((it) => it.id === `FavoritesFilms`)];
@@ -186,8 +179,6 @@ const mainFunction = (filmsData) => {
     card.onAddToWatchList = (state, id) => {
       const dataIndex = filmsData.findIndex((it) => it.id === id);
       filmsData[dataIndex].isWatchList = state;
-
-      filmPopupCard = new FilmPopup(filmsData[dataIndex]);
       card.reRender();
 
       const filter = filters[filters.findIndex((it) => it.id === `WatchlistFilms`)];

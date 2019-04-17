@@ -15,7 +15,7 @@ export default class Provider {
     if (this._isOnline()) {
       return this._api.getMovie()
         .then((movies) => {
-          movies.map((it) => this._store.setItem({key: it.id, item: it.toRaw()}));
+          movies.forEach((it) => this._store.setItem({key: it.id, item: it.toRaw()}));
           return movies;
         });
     } else {
