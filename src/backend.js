@@ -1,11 +1,5 @@
 import ModelMovie from './model-movie.js';
-
-const Method = {
-  GET: `GET`,
-  POST: `POST`,
-  PUT: `PUT`,
-  DELETE: `DELETE`
-};
+import {METHOD} from './export-const.js';
 
 const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
@@ -30,7 +24,7 @@ export default class API {
     movies.map((it) => {
       return this._load({
         url: `movies/${it.id}`,
-        method: Method.PUT,
+        method: METHOD.PUT,
         body: JSON.stringify(it),
         headers: new Headers({'Content-Type': `application/json`})
       })
@@ -51,7 +45,7 @@ export default class API {
   updateMovie({id, data}) {
     return this._load({
       url: `movies/${id}`,
-      method: Method.PUT,
+      method: METHOD.PUT,
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
@@ -59,7 +53,7 @@ export default class API {
       .then(ModelMovie.parseMovie);
   }
 
-  _load({url, method = Method.GET, body = null, headers = new Headers()}) {
+  _load({url, method = METHOD.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
