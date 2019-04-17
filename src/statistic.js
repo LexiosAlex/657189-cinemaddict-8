@@ -17,10 +17,6 @@ export default class Statistic extends Component {
 
     this._filtersState = new Map([
       [`allTime`, true],
-      // [`today`, false],
-      // [`week`, false],
-      // [`month`, false],
-      // [`year`, false]
     ]);
   }
 

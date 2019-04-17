@@ -1,9 +1,10 @@
-import {FILTERS_AREA, FILMS_LIST_MAIN} from './export-const.js';
+import {FILTERS_AREA, FILMS_LIST_MAIN, AUTHORIZATION, END_POINT, MOVIES_STORE_KEY, TOP_COMM_AREA, TOP_RATE_AREA, STISTIC_AREA, PROFILE_RATING_AREA, SHOW_MORE_BUTTON} from './export-const.js';
 import FilmPopup from './film-popup.js';
 import Statistics from './statistic.js';
 import {renderFilmCard, removeFilmCards} from './render-film-card.js';
 import {getTopCommentData, getTopRatedData} from './extra-film-cards.js';
 import {createCardsData} from './create-cards-data.js';
+import {hideLoadMassage, erorMassage} from './load-message.js';
 
 import Backend from './backend.js';
 import Provider from './provider.js';
@@ -11,32 +12,10 @@ import Store from './store.js';
 
 import {createFilters, showFilms, hideFilms, unrenderFilters, getFavoritesFilter, getHistoryFilter, getWatchListFilter} from './filters.js';
 
-const AUTHORIZATION = `Basic eo0w597ik56219a`;
-const END_POINT = `https://es8-demo-srv.appspot.com/moowle/`;
 const apiData = {endPoint: END_POINT, authorization: AUTHORIZATION};
-const MOVIES_STORE_KEY = `tasks-store-key`;
-
 const store = new Store({key: MOVIES_STORE_KEY, storage: localStorage});
 const api = new Backend(apiData);
 const provider = new Provider({api, store});
-
-const template = `<div>Loading movies...</div>`;
-const messageTemplate = document.createElement(`div`);
-messageTemplate.innerHTML = template;
-messageTemplate.style.cssText = `
-  display: flex;
-  width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 300px;
-  margin-bottom: 300px;
-  height: 150px;
-  border: solid 2px var(--outline-color);
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-`;
-FILMS_LIST_MAIN.appendChild(messageTemplate);
 
 window.addEventListener(`offline`, () => {
   document.title = `${document.title}[OFFLINE]`;
@@ -49,11 +28,10 @@ window.addEventListener(`online`, () => {
 provider.getMovie()
   .then((films) =>{
     mainFunction(films);
-    messageTemplate.classList.add(`visually-hidden`);
+    hideLoadMassage();
   })
   .catch(() => {
-    messageTemplate.firstChild.textContent = `Something went wrong while loading movies. Check your connection or try again later`;
-    messageTemplate.style.border = `2px solid red`;
+    erorMassage();
   });
 
 const mainFunction = (filmsData) => {
@@ -234,24 +212,22 @@ const mainFunction = (filmsData) => {
 
   activateFilmCards(filmCards);
 
-  const topCommmArea = document.querySelector(`.films-list__container--top-commented`);
-  const topRatedArea = document.querySelector(`.films-list__container--top-rated`);
-  let topCommsData = null;
-  let commentFilmCards = [];
-  let topRateData = null;
-  let topRatedFilmCards = [];
-
   const renderExtraCardsBlock = () => {
+    let topCommsData = null;
+    let commentFilmCards = [];
+    let topRateData = null;
+    let topRatedFilmCards = [];
+
     topCommsData = getTopCommentData(filmsData);
     removeFilmCards(commentFilmCards);
     commentFilmCards = createCardsData(topCommsData);
-    renderFilmCard(topCommmArea, commentFilmCards);
+    renderFilmCard(TOP_COMM_AREA, commentFilmCards);
     activateFilmCards(commentFilmCards);
 
     topRateData = getTopRatedData(filmsData);
     removeFilmCards(topRatedFilmCards);
     topRatedFilmCards = createCardsData(topRateData);
-    renderFilmCard(topRatedArea, topRatedFilmCards);
+    renderFilmCard(TOP_RATE_AREA, topRatedFilmCards);
     activateFilmCards(topRatedFilmCards);
   };
 
@@ -356,12 +332,11 @@ const mainFunction = (filmsData) => {
   ]);
 
   let statisticComponent;
-  const statisticArea = document.querySelector(`.statistic`);
 
   const renderStatsComponent = () => {
     statisticComponent = new Statistics(filmsData);
     statisticComponent.getStatisticData(filmsData);
-    statisticArea.appendChild(statisticComponent.render());
+    STISTIC_AREA.appendChild(statisticComponent.render());
     statisticComponent.statisticDiagram();
   };
 
@@ -373,39 +348,37 @@ const mainFunction = (filmsData) => {
     }
   };
 
-  const profileRating = document.querySelector(`.profile__rating`);
   const watchedMovies = filmsData.filter((it) => it[`isAlreadyWatched`] === true);
 
   if (watchedMovies.length < 11) {
-    profileRating.textContent = `novice`;
+    PROFILE_RATING_AREA.textContent = `novice`;
   }
 
   if (watchedMovies.length < 21 & filmsData.length > 10) {
-    profileRating.textContent = `fan`;
+    PROFILE_RATING_AREA.textContent = `fan`;
   }
 
   if (watchedMovies.length > 20) {
-    profileRating.textContent = `movie buff`;
+    PROFILE_RATING_AREA.textContent = `movie buff`;
   }
 
   document.querySelector(`.footer__statistics`).textContent = `${filmsData.length} movies inside`;
 
   const showMore = () => {
-    if (showMoreButton.classList.contains(`visually-hidden`)) {
-      showMoreButton.classList.remove(`visually-hidden`);
+    if (SHOW_MORE_BUTTON.classList.contains(`visually-hidden`)) {
+      SHOW_MORE_BUTTON.classList.remove(`visually-hidden`);
     }
     for (let i = 0; i < 5; i++) {
       if (FILMS_LIST_MAIN.querySelector(`.film-card--hidden`)) {
         const film = FILMS_LIST_MAIN.querySelector(`.film-card--hidden`);
         film.classList.remove(`film-card--hidden`, `visually-hidden`);
       } else {
-        showMoreButton.classList.add(`visually-hidden`);
+        SHOW_MORE_BUTTON.classList.add(`visually-hidden`);
       }
     }
   };
 
-  const showMoreButton = document.querySelector(`.films-list__show-more`);
-  showMoreButton.addEventListener(`click`, showMore);
+  SHOW_MORE_BUTTON.addEventListener(`click`, showMore);
   showMore();
 
   const searchBar = document.querySelector(`input[name=search]`);
