@@ -2,6 +2,11 @@ import Component from './component.js';
 import createElement from './create-element.js';
 import moment from 'moment';
 
+const ENTER_KEY_CODE = 13;
+const ESC_KEY_CODE = 27;
+const RATING_COUNT = 10;
+const SECOND_DURATION = 1000;
+
 export default class FilmPopup extends Component {
   constructor(data) {
     super();
@@ -59,13 +64,13 @@ export default class FilmPopup extends Component {
   }
 
   _onButtonCloseKeydown(evt) {
-    if (evt.keyCode === 27 && typeof this._onClose === `function`) {
+    if (evt.keyCode === ESC_KEY_CODE && typeof this._onClose === `function`) {
       this._onClose();
     }
   }
 
   _onSubmitCommentKeyDown(evt) {
-    if (evt.keyCode === 13 && evt.ctrlKey) {
+    if (evt.keyCode === ENTER_KEY_CODE && evt.ctrlKey) {
       const commenmtInput = this._element.querySelector(`.film-details__comment-input`);
       commenmtInput.disabled = true;
 
@@ -272,7 +277,7 @@ export default class FilmPopup extends Component {
     detailsTable.date = `
       <tr class="film-details__row">
         <td class="film-details__term">Release Date</td>
-        <td class="film-details__cell">${moment.unix(this._year / 1000).format(`MMMM D YYYY`)} (${this._country})</td>
+        <td class="film-details__cell">${moment.unix(this._year / SECOND_DURATION).format(`MMMM D YYYY`)} (${this._country})</td>
       </tr>
       `;
 
@@ -346,7 +351,7 @@ export default class FilmPopup extends Component {
               <p class="film-details__comment-text">${comment.text}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${comment.author}</span>
-                <span class="film-details__comment-day">${moment.unix(comment.addDate / 1000).fromNow()}</span>
+                <span class="film-details__comment-day">${moment.unix(comment.addDate / SECOND_DURATION).fromNow()}</span>
               </p>
             </div>
           </li>`).join(``)}
@@ -376,7 +381,7 @@ export default class FilmPopup extends Component {
       `;
     const getRatingString = (rating) => {
       const arr = [];
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < RATING_COUNT; i++) {
         if (rating && rating.toString() === i.toString()) {
           arr[i] = `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i}" id="rating-${i}" checked>
                   <label class="film-details__user-rating-label" for="rating-${i}">${i}</label>`;

@@ -1,6 +1,14 @@
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Component from './component.js';
+const noviceRankLength = 10;
+const fanRankLength = 20;
+const SECOND_DURATION = 1000;
+const DAY_DURATION = 86400;
+const WEEK_DURATION = 604800;
+const MONTH_DURATION = 2592000;
+const YEAR_DURATION = 31536000;
+const HOUR_DURATION = 60;
 
 export default class Statistic extends Component {
   constructor(data) {
@@ -78,7 +86,7 @@ export default class Statistic extends Component {
         break;
       case (`today`):
         this._filmsData.forEach((it) => {
-          if ((Date.now() - it.watchingDate) / 1000 < 86400) {
+          if ((Date.now() - it.watchingDate) / SECOND_DURATION < DAY_DURATION) {
             filteredArray.push(it);
           }
         });
@@ -91,7 +99,7 @@ export default class Statistic extends Component {
 
       case (`week`):
         this._filmsData.forEach((it) => {
-          if ((Date.now() - it.watchingDate) / 1000 < 604800) {
+          if ((Date.now() - it.watchingDate) / SECOND_DURATION < WEEK_DURATION) {
             filteredArray.push(it);
           }
         });
@@ -104,7 +112,7 @@ export default class Statistic extends Component {
 
       case (`month`):
         this._filmsData.forEach((it) => {
-          if ((Date.now() - it.watchingDate) / 1000 < 2592000) {
+          if ((Date.now() - it.watchingDate) / SECOND_DURATION < MONTH_DURATION) {
             filteredArray.push(it);
           }
         });
@@ -117,7 +125,7 @@ export default class Statistic extends Component {
 
       case (`year`):
         this._filmsData.forEach((it) => {
-          if ((Date.now() - it.watchingDate) / 1000 < 31536000) {
+          if ((Date.now() - it.watchingDate) / SECOND_DURATION < YEAR_DURATION) {
             filteredArray.push(it);
           }
         });
@@ -134,15 +142,15 @@ export default class Statistic extends Component {
 
     let userRank = `undefined`;
 
-    if (this._filmsData.length < 11) {
+    if (this._filmsData.length <= noviceRankLength) {
       userRank = `novice`;
     }
 
-    if (this._filmsData.length < 21 & this._filmsData.length > 10) {
+    if (this._filmsData.length <= fanRankLength & this._filmsData.length > noviceRankLength) {
       userRank = `fan`;
     }
 
-    if (this._filmsData.length > 20) {
+    if (this._filmsData.length > fanRankLength) {
       userRank = `movie buff`;
     }
 
@@ -176,7 +184,7 @@ export default class Statistic extends Component {
         </li>
         <li class="statistic__text-item">
           <h4 class="statistic__item-title">Total duration</h4>
-          <p class="statistic__item-text">${Math.floor(this._totalTime / 60)} <span class="statistic__item-description">h</span> ${(this._totalTime - Math.floor(this._totalTime / 60) * 60)} <span class="statistic__item-description">m</span></p>
+          <p class="statistic__item-text">${Math.floor(this._totalTime / HOUR_DURATION)} <span class="statistic__item-description">h</span> ${(this._totalTime - Math.floor(this._totalTime / HOUR_DURATION) * HOUR_DURATION)} <span class="statistic__item-description">m</span></p>
         </li>
         <li class="statistic__text-item">
           <h4 class="statistic__item-title">Top genre</h4>

@@ -1,6 +1,8 @@
 import Component from './component.js';
 import moment from 'moment';
 import createElement from './create-element.js';
+const SECOND_DURATION = 1000;
+const HOUR_DURATION = 60;
 
 export default class Film extends Component {
   constructor(data) {
@@ -130,11 +132,11 @@ export default class Film extends Component {
   }
 
   get template() {
-    const parseYear = moment.unix(this._year / 1000).format(`YYYY`);
+    const parseYear = moment.unix(this._year / SECOND_DURATION).format(`YYYY`);
 
     let parsedDuration = ``;
 
-    if (this._duration > 60) {
+    if (this._duration > HOUR_DURATION) {
       parsedDuration = moment.utc(moment.duration(this._duration, `minutes`).asMilliseconds()).format(`h[h] m[m]`);
     } else {
       parsedDuration = `${this._duration}m`;

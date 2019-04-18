@@ -16,6 +16,10 @@ const apiData = {endPoint: END_POINT, authorization: AUTHORIZATION};
 const store = new Store({key: MOVIES_STORE_KEY, storage: localStorage});
 const api = new Backend(apiData);
 const provider = new Provider({api, store});
+const noviceRankLength = 10;
+const fanRankLength = 20;
+const timerMs = 500;
+const showMoreCardsCount = 5;
 
 window.addEventListener(`offline`, () => {
   document.title = `${document.title}[OFFLINE]`;
@@ -204,12 +208,12 @@ const mainFunction = (filmsData) => {
 
   activateFilmCards(filmCards);
 
-  const renderExtraCardsBlock = () => {
-    let topCommsData = null;
-    let commentFilmCards = [];
-    let topRateData = null;
-    let topRatedFilmCards = [];
+  let topCommsData = null;
+  let commentFilmCards = [];
+  let topRateData = null;
+  let topRatedFilmCards = [];
 
+  const renderExtraCardsBlock = () => {
     topCommsData = getTopCommentData(filmsData);
     removeFilmCards(commentFilmCards);
     commentFilmCards = createCardsData(topCommsData);
@@ -342,15 +346,15 @@ const mainFunction = (filmsData) => {
 
   const watchedMovies = filmsData.filter((it) => it[`isAlreadyWatched`] === true);
 
-  if (watchedMovies.length < 11) {
+  if (watchedMovies.length <= noviceRankLength) {
     PROFILE_RATING_AREA.textContent = `novice`;
   }
 
-  if (watchedMovies.length < 21 & filmsData.length > 10) {
+  if (watchedMovies.length <= fanRankLength & filmsData.length > noviceRankLength) {
     PROFILE_RATING_AREA.textContent = `fan`;
   }
 
-  if (watchedMovies.length > 20) {
+  if (watchedMovies.length > fanRankLength) {
     PROFILE_RATING_AREA.textContent = `movie buff`;
   }
 
@@ -360,7 +364,7 @@ const mainFunction = (filmsData) => {
     if (SHOW_MORE_BUTTON.classList.contains(`visually-hidden`)) {
       SHOW_MORE_BUTTON.classList.remove(`visually-hidden`);
     }
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < showMoreCardsCount; i++) {
       if (FILMS_LIST_MAIN.querySelector(`.film-card--hidden`)) {
         const film = FILMS_LIST_MAIN.querySelector(`.film-card--hidden`);
         film.classList.remove(`film-card--hidden`, `visually-hidden`);
@@ -393,7 +397,7 @@ const mainFunction = (filmsData) => {
       it.reRender();
     });
     showMore();
-  }, 500));
+  }, timerMs));
 
   function debounce(f, ms) {
 

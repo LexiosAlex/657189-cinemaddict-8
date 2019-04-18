@@ -1,8 +1,11 @@
 import ModelMovie from './model-movie.js';
 import {METHOD} from './export-const.js';
 
+const SUCCESS_STATUS = 200;
+const UNSUCESS_STATUS = 300;
+
 const checkStatus = (response) => {
-  if (response.status >= 200 && response.status < 300) {
+  if (response.status >= SUCCESS_STATUS && response.status < UNSUCESS_STATUS) {
     return response;
   } else {
     throw new Error(`${response.status}: ${response.statusText}`);
