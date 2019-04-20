@@ -1,5 +1,5 @@
 import ModelMovie from './model-movie.js';
-import {METHOD} from './export-const.js';
+import {Method} from './export-const.js';
 
 const SUCCESS_STATUS = 200;
 const UNSUCESS_STATUS = 300;
@@ -24,10 +24,10 @@ export default class API {
   }
 
   syncMovies({movies}) {
-    movies.map((it) => {
+    movies.forEach((it) => {
       return this._load({
         url: `movies/${it.id}`,
-        method: METHOD.PUT,
+        method: Method.PUT,
         body: JSON.stringify(it),
         headers: new Headers({'Content-Type': `application/json`})
       })
@@ -48,7 +48,7 @@ export default class API {
   updateMovie({id, data}) {
     return this._load({
       url: `movies/${id}`,
-      method: METHOD.PUT,
+      method: Method.PUT,
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
@@ -56,7 +56,7 @@ export default class API {
       .then(ModelMovie.parseMovie);
   }
 
-  _load({url, method = METHOD.GET, body = null, headers = new Headers()}) {
+  _load({url, method = Method.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})

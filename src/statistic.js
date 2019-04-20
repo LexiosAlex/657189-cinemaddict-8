@@ -37,7 +37,7 @@ export default class Statistic extends Component {
       this._totalTime += it.duration;
     });
 
-    let genresSet = new Set([]);
+    const genresSet = new Set([]);
 
     this._historyArray.forEach((it) => {
       it.genres.forEach((genre) => {
@@ -45,9 +45,9 @@ export default class Statistic extends Component {
       });
     });
 
-    let genresArray = [];
+    const genresArray = [];
     genresSet.forEach((setGenre) =>{
-      let genreObject = {};
+      const genreObject = {};
       genreObject.genre = setGenre;
       genreObject.count = 0;
       this._historyArray.filter((it) => {
@@ -75,7 +75,7 @@ export default class Statistic extends Component {
   }
 
   _onStatisticFilterClick(evt) {
-    let filteredArray = [];
+    const filteredArray = [];
     switch (evt.target.value) {
       case (`all-time`):
         this._filtersState.clear();

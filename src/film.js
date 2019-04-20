@@ -3,6 +3,7 @@ import moment from 'moment';
 import createElement from './create-element.js';
 const SECOND_DURATION = 1000;
 const HOUR_DURATION = 60;
+const DESCRIPTION_LENGTH = 140;
 
 export default class Film extends Component {
   constructor(data) {
@@ -180,7 +181,7 @@ export default class Film extends Component {
 
     filmCard.description = `
       <p class="film-card__description">
-        ${this._description}
+        ${this._description.substring(0, DESCRIPTION_LENGTH)}...
       </p>
     `;
 

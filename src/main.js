@@ -259,6 +259,7 @@ const mainFunction = (filmsData) => {
           filmCards = createCardsData(filteredFilms, true);
           renderFilmCards(FILMS_LIST_MAIN, filmCards);
           activateFilmCards(filmCards);
+          renderProifleRating();
           break;
 
         case `FavoritesFilms`:
@@ -344,19 +345,23 @@ const mainFunction = (filmsData) => {
     }
   };
 
-  const watchedMovies = filmsData.filter((it) => it[`isAlreadyWatched`] === true);
+  const renderProifleRating = () => {
+    const watchedMovies = filmsData.filter((it) => it[`isAlreadyWatched`] === true);
 
-  if (watchedMovies.length <= noviceRankLength) {
-    PROFILE_RATING_AREA.textContent = `novice`;
-  }
+    if (watchedMovies.length <= noviceRankLength) {
+      PROFILE_RATING_AREA.textContent = `novice`;
+    }
 
-  if (watchedMovies.length <= fanRankLength & filmsData.length > noviceRankLength) {
-    PROFILE_RATING_AREA.textContent = `fan`;
-  }
+    if (watchedMovies.length <= fanRankLength & filmsData.length > noviceRankLength) {
+      PROFILE_RATING_AREA.textContent = `fan`;
+    }
 
-  if (watchedMovies.length > fanRankLength) {
-    PROFILE_RATING_AREA.textContent = `movie buff`;
-  }
+    if (watchedMovies.length > fanRankLength) {
+      PROFILE_RATING_AREA.textContent = `movie buff`;
+    }
+  };
+
+  renderProifleRating();
 
   document.querySelector(`.footer__statistics`).textContent = `${filmsData.length} movies inside`;
 
@@ -368,9 +373,10 @@ const mainFunction = (filmsData) => {
       if (FILMS_LIST_MAIN.querySelector(`.film-card--hidden`)) {
         const film = FILMS_LIST_MAIN.querySelector(`.film-card--hidden`);
         film.classList.remove(`film-card--hidden`, `visually-hidden`);
-      } else {
-        SHOW_MORE_BUTTON.classList.add(`visually-hidden`);
       }
+    }
+    if (!FILMS_LIST_MAIN.querySelector(`.film-card--hidden`)) {
+      SHOW_MORE_BUTTON.classList.add(`visually-hidden`);
     }
   };
 

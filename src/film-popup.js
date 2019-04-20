@@ -6,6 +6,7 @@ const ENTER_KEY_CODE = 13;
 const ESC_KEY_CODE = 27;
 const RATING_COUNT = 10;
 const SECOND_DURATION = 1000;
+const ANIMATION_TIMEOUT = 600;
 
 export default class FilmPopup extends Component {
   constructor(data) {
@@ -71,12 +72,12 @@ export default class FilmPopup extends Component {
 
   _onSubmitCommentKeyDown(evt) {
     if (evt.keyCode === ENTER_KEY_CODE && evt.ctrlKey) {
-      const commenmtInput = this._element.querySelector(`.film-details__comment-input`);
-      commenmtInput.disabled = true;
+      const commentInput = this._element.querySelector(`.film-details__comment-input`);
+      commentInput.disabled = true;
 
       const comment = {
         addDate: Date.now(),
-        text: commenmtInput.value,
+        text: commentInput.value,
         emoji: ` `,
         author: `userName`,
       };
@@ -90,15 +91,16 @@ export default class FilmPopup extends Component {
       if (typeof this._onSumbitComment === `function`) {
         this._onSumbitComment(this._id, comment)
         .then(() => {
-          commenmtInput.value = ` `;
+          commentInput.value = ` `;
           this.unbind();
           this._particularUpdate();
           this.bind();
-          this.element.querySelector(`.film-details__watched-reset`).classList.remove(`visually-hidden`);
+          this.element.querySelector(`.film-details__user-rating-controls`).classList.remove(`visually-hidden`);
         }).catch(() => {
-          commenmtInput.style.cssText = `border: 1px solid red`;
+          commentInput.style.cssText = `border: 1px solid red`;
+          commentInput.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
         }).finally(() => {
-          commenmtInput.disabled = false;
+          commentInput.disabled = false;
         });
       }
     }
@@ -139,7 +141,7 @@ export default class FilmPopup extends Component {
           this.unbind();
           this._particularUpdate();
           this.bind();
-          this.element.querySelector(`.film-details__watched-reset`).classList.add(`visually-hidden`);
+          this.element.querySelector(`.film-details__user-rating-controls`).classList.add(`visually-hidden`);
         })
         .catch(() => {
           this.element.querySelector(`.film-details__watched-reset`).style.cssText = `border: 1px solid red`;
@@ -395,11 +397,11 @@ export default class FilmPopup extends Component {
 
     filmDetails.UserRate = `
       <section class="film-details__user-rating-wrap">
-        <div class="film-details__user-rating-controls">
+        <div class="film-details__user-rating-controls visually-hidden">
 
           <span class="film-details__watched-status ${this._isAlreadyWatched ? `film-details__watched-status--active` : ``}">${this._isAlreadyWatched ? `Already watched` : `will Watch`}</span>
 
-          <button class="film-details__watched-reset visually-hidden" type="button">undo</button>
+          <button class="film-details__watched-reset" type="button">undo</button>
         </div>
 
         <div class="film-details__user-score">

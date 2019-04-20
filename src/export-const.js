@@ -9,7 +9,7 @@ const TOP_RATE_AREA = document.querySelector(`.films-list__container--top-rated`
 const STISTIC_AREA = document.querySelector(`.statistic`);
 const PROFILE_RATING_AREA = document.querySelector(`.profile__rating`);
 const SHOW_MORE_BUTTON = document.querySelector(`.films-list__show-more`);
-const METHOD = {
+const Method = {
   GET: `GET`,
   POST: `POST`,
   PUT: `PUT`,
@@ -28,5 +28,5 @@ export {
   STISTIC_AREA,
   PROFILE_RATING_AREA,
   SHOW_MORE_BUTTON,
-  METHOD
+  Method
 };
