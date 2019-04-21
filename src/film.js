@@ -251,7 +251,7 @@ export default class Film extends Component {
   }
 
   update(upData) {
-    this.comments = upData.comments;
+    this._comments = upData.comments;
     this._isAlreadyWatched = upData.isAlreadyWatched;
     this._isFavorite = upData.isFavorite;
     this._isWatchList = upData.isWatchList;

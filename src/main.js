@@ -47,15 +47,16 @@ const mainFunction = (filmsData) => {
   filmCards = createCardsData(filmsData, true);
 
   const activateFilmPopupCardCdb = (filmPopupCard) => {
-    filmPopupCard.onSubmitComment = (id, comment) => {
+    filmPopupCard.onSubmitComment = (id, newCommentsArray) => {
       const dataIndex = filmsData.findIndex((it) => it.id === id);
-      filmsData[dataIndex].comments.push(comment);
+      filmsData[dataIndex].comments = newCommentsArray;
 
       const filmCard = filmCards[filmCards.findIndex((it) => it.filmId === dataIndex.toString())];
-      filmCard.reRender();
 
       return provider.updateMovie({id, data: filmsData[dataIndex].toRaw()})
       .then(() => {
+        filmCard.update(filmsData[dataIndex]);
+        filmCard.reRender();
         renderExtraCardsBlock();
       });
     };
@@ -73,48 +74,68 @@ const mainFunction = (filmsData) => {
       });
     };
 
-    filmPopupCard.onFilmDetailsChange = (id, newObject) => {
+    filmPopupCard.onAlreadyWatchedChange = (id, state) => {
       const dataIndex = filmsData.findIndex((it) => it.id === id);
-      let filter;
-      let amount;
 
-      if (newObject.isAlreadyWatched !== filmsData[dataIndex].isAlreadyWatched) {
-
-        if (newObject.isAlreadyWatched === false) {
-          filmsData[dataIndex].watchingDate = null;
-        } else {
-          filmsData[dataIndex].watchingDate = Date.now();
-        }
-        filmsData[dataIndex].isAlreadyWatched = newObject.isAlreadyWatched;
-
-        filter = getHistoryFilter(filters);
-        amount = filmsData.filter((it) => it.isAlreadyWatched === true).length;
+      if (state === false) {
+        filmsData[dataIndex].watchingDate = null;
+      } else {
+        filmsData[dataIndex].watchingDate = Date.now();
       }
+      filmsData[dataIndex].isAlreadyWatched = state;
 
-      if (newObject.isFavorite !== filmsData[dataIndex].isFavorite) {
-
-        filmsData[dataIndex].isFavorite = newObject.isFavorite;
-
-        filter = getFavoritesFilter(filters);
-        amount = filmsData.filter((it) => it.isFavorite === true).length;
-      }
-      if (newObject.isWatchList !== filmsData[dataIndex].isWatchList) {
-
-        filmsData[dataIndex].isWatchList = newObject.isWatchList;
-
-        filter = getWatchListFilter(filters);
-        amount = filmsData.filter((it) => it.isWatchList === true).length;
-      }
+      const filter = getHistoryFilter(filters);
+      const amount = filmsData.filter((it) => it.isAlreadyWatched === true).length;
 
       const filmCard = filmCards[filmCards.findIndex((it) => it.filmId === dataIndex.toString())];
-      filmCard.update(filmsData[dataIndex]);
-      filmCard.reRender();
-
-      filter.update({amount});
-      filter.reRender();
 
       return provider.updateMovie({id, data: filmsData[dataIndex].toRaw()})
       .then(() => {
+        filmCard.update(filmsData[dataIndex]);
+        filmCard.reRender();
+
+        filter.update({amount});
+        filter.reRender();
+        renderExtraCardsBlock();
+      });
+    };
+
+    filmPopupCard.onFavoriteStateChange = (id, state) => {
+      const dataIndex = filmsData.findIndex((it) => it.id === id);
+      filmsData[dataIndex].isFavorite = state;
+
+      const filter = getFavoritesFilter(filters);
+      const amount = filmsData.filter((it) => it.isFavorite === true).length;
+
+      const filmCard = filmCards[filmCards.findIndex((it) => it.filmId === dataIndex.toString())];
+
+      return provider.updateMovie({id, data: filmsData[dataIndex].toRaw()})
+      .then(() => {
+        filmCard.update(filmsData[dataIndex]);
+        filmCard.reRender();
+
+        filter.update({amount});
+        filter.reRender();
+        renderExtraCardsBlock();
+      });
+    };
+
+    filmPopupCard.onAddToWatchListStateChange = (id, state) => {
+      const dataIndex = filmsData.findIndex((it) => it.id === id);
+      filmsData[dataIndex].isWatchList = state;
+
+      const filter = getWatchListFilter(filters);
+      const amount = filmsData.filter((it) => it.isWatchList === true).length;
+
+      const filmCard = filmCards[filmCards.findIndex((it) => it.filmId === dataIndex.toString())];
+
+      return provider.updateMovie({id, data: filmsData[dataIndex].toRaw()})
+      .then(() => {
+        filmCard.update(filmsData[dataIndex]);
+        filmCard.reRender();
+
+        filter.update({amount});
+        filter.reRender();
         renderExtraCardsBlock();
       });
     };

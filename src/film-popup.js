@@ -1,5 +1,6 @@
 import Component from './component.js';
 import createElement from './create-element.js';
+import {disableInputs} from './disable-inputs.js';
 import moment from 'moment';
 
 const ENTER_KEY_CODE = 13;
@@ -42,12 +43,17 @@ export default class FilmPopup extends Component {
     this._onButtonClose = this._onButtonClose.bind(this);
     this._onEmojiCommentChange = this._onEmojiCommentChange.bind(this);
     this._filmUnWathced = this._filmUnWathced.bind(this);
-    this._onStateButtonsClick = this._onStateButtonsClick.bind(this);
     this._onScoreButtonsClick = this._onScoreButtonsClick.bind(this);
     this._onButtonCloseKeydown = this._onButtonCloseKeydown.bind(this);
+    this._onAlreadyWatchedButtonClick = this._onAlreadyWatchedButtonClick.bind(this);
+    this._onFavoriteButtonClick = this._onFavoriteButtonClick.bind(this);
+    this._onAddToWatchListButtonClick = this._onAddToWatchListButtonClick.bind(this);
 
     this._onFilmDetailsChange = null;
     this._onScoreChange = null;
+    this._onAlreadyWatchedChange = null;
+    this._onFavoriteStateChange = null;
+    this._onAddToWatchListStateChange = null;
   }
 
   set onClose(fn) {
@@ -88,9 +94,16 @@ export default class FilmPopup extends Component {
         }
       });
 
+      const newCommsArray = [];
+      this._comments.forEach((it) => {
+        newCommsArray.push(it);
+      });
+      newCommsArray.push(comment);
+
       if (typeof this._onSumbitComment === `function`) {
-        this._onSumbitComment(this._id, comment)
+        this._onSumbitComment(this._id, newCommsArray)
         .then(() => {
+          this._comments = newCommsArray;
           commentInput.value = ` `;
           this.unbind();
           this._particularUpdate();
@@ -153,23 +166,21 @@ export default class FilmPopup extends Component {
     this._onFilmDetailsChange = fn;
   }
 
-  _onStateButtonsClick() {
-    const newStateObject = {
-      isAlreadyWatched: this._element.querySelector(`input[name=watched]`).checked,
-      isFavorite: this._element.querySelector(`input[name=favorite]`).checked,
-      isWatchList: this._element.querySelector(`input[name=watchlist]`).checked,
-    };
+  set onAlreadyWatchedChange(fn) {
+    this._onAlreadyWatchedChange = fn;
+  }
+
+  _onAlreadyWatchedButtonClick() {
+    const state = this._element.querySelector(`input[name=watched]`).checked;
 
     const inputs = this._element.querySelectorAll(`.film-details__control-input`);
 
-    if (typeof this._onFilmDetailsChange === `function`) {
-      inputs.forEach((it) =>{
-        it.disabled = true;
-      });
+    if (typeof this._onAlreadyWatchedChange === `function`) {
+      disableInputs(inputs, true);
 
-      this._onFilmDetailsChange(this._id, newStateObject)
+      this._onAlreadyWatchedChange(this._id, state)
         .then(() => {
-          this.update(newStateObject);
+          this._isAlreadyWatched = state;
           this.unbind();
           this._particularUpdate();
           this.bind();
@@ -178,9 +189,62 @@ export default class FilmPopup extends Component {
           this._element.querySelector(`.film-details__controls`).style.cssText = `border: 1px solid red`;
         })
         .finally(() => {
-          inputs.forEach((it) =>{
-            it.disabled = false;
-          });
+          disableInputs(inputs, false);
+        });
+    }
+  }
+
+  set onFavoriteStateChange(fn) {
+    this._onFavoriteStateChange = fn;
+  }
+
+  _onFavoriteButtonClick() {
+    const state = this._element.querySelector(`input[name=favorite]`).checked;
+
+    const inputs = this._element.querySelectorAll(`.film-details__control-input`);
+
+    if (typeof this._onFavoriteStateChange === `function`) {
+      disableInputs(inputs, true);
+
+      this._onFavoriteStateChange(this._id, state)
+        .then(() => {
+          this._isFavorite = state;
+          this.unbind();
+          this._particularUpdate();
+          this.bind();
+        })
+        .catch(() => {
+          this._element.querySelector(`.film-details__controls`).style.cssText = `border: 1px solid red`;
+        })
+        .finally(() => {
+          disableInputs(inputs, false);
+        });
+    }
+  }
+
+  set onAddToWatchListStateChange(fn) {
+    this._onAddToWatchListStateChange = fn;
+  }
+
+  _onAddToWatchListButtonClick() {
+    const state = this._element.querySelector(`input[name=watchlist]`).checked;
+
+    const inputs = this._element.querySelectorAll(`.film-details__control-input`);
+
+    if (typeof this._onFavoriteStateChange === `function`) {
+      disableInputs(inputs, true);
+      this._onAddToWatchListStateChange(this._id, state)
+        .then(() => {
+          this._isWatchList = state;
+          this.unbind();
+          this._particularUpdate();
+          this.bind();
+        })
+        .catch(() => {
+          this._element.querySelector(`.film-details__controls`).style.cssText = `border: 1px solid red`;
+        })
+        .finally(() => {
+          disableInputs(inputs, false);
         });
     }
   }
@@ -466,9 +530,14 @@ export default class FilmPopup extends Component {
     this.element.querySelector(`.film-details__watched-reset`)
       .addEventListener(`click`, this._filmUnWathced);
     document.addEventListener(`keydown`, this._onSubmitCommentKeyDown);
-    this.element.querySelectorAll(`.film-details__control-input`).forEach((it) => {
-      it.addEventListener(`click`, this._onStateButtonsClick);
-    });
+
+    this._element.querySelector(`input[name=watched]`)
+      .addEventListener(`click`, this._onAlreadyWatchedButtonClick);
+    this._element.querySelector(`input[name=favorite]`)
+      .addEventListener(`click`, this._onFavoriteButtonClick);
+    this._element.querySelector(`input[name=watchlist]`)
+      .addEventListener(`click`, this._onAddToWatchListButtonClick);
+
     this.element.querySelectorAll(`input[name=score]`).forEach((it) => {
       it.addEventListener(`click`, this._onScoreButtonsClick);
     });
@@ -490,9 +559,14 @@ export default class FilmPopup extends Component {
     this.element.querySelector(`.film-details__watched-reset`)
       .removeEventListener(`click`, this._filmUnWathced);
     document.removeEventListener(`keydown`, this._onSubmitCommentKeyDown);
-    this.element.querySelectorAll(`.film-details__control-input`).forEach((it) => {
-      it.removeEventListener(`click`, this._onStateButtonsClick);
-    });
+
+    this._element.querySelector(`input[name=watched]`)
+      .removeEventListener(`click`, this._onAlreadyWatchedButtonClick);
+    this._element.querySelector(`input[name=favorite]`)
+      .removeEventListener(`click`, this._onFavoriteButtonClick);
+    this._element.querySelector(`input[name=watchlist]`)
+      .removeEventListener(`click`, this._onAddToWatchListButtonClick);
+
     this.element.querySelectorAll(`input[name=score]`).forEach((it) => {
       it.removeEventListener(`click`, this._onScoreButtonsClick);
     });
