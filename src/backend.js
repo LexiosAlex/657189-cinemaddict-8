@@ -35,10 +35,6 @@ export default class API {
     });
   }
 
-  toJSON(response) {
-    return response.json();
-  }
-
   getMovie() {
     return this._load({url: `movies`})
       .then(toJSON)

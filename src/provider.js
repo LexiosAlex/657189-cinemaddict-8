@@ -12,7 +12,7 @@ export default class Provider {
   }
 
   getMovie() {
-    if (this._isOnline()) {
+    if (Provider._isOnline()) {
       return this._api.getMovie()
         .then((movies) => {
           movies.forEach((it) => this._store.setItem({key: it.id, item: it.toRaw()}));
@@ -28,7 +28,7 @@ export default class Provider {
   }
 
   updateMovie({id, data}) {
-    if (this._isOnline()) {
+    if (Provider._isOnline()) {
       return this._api.updateMovie({id, data})
         .then((film) => {
           this._store.setItem({key: film.id, item: film.toRaw()});
@@ -42,7 +42,7 @@ export default class Provider {
     }
   }
 
-  _isOnline() {
+  static _isOnline() {
     return window.navigator.onLine;
   }
 

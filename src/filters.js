@@ -35,7 +35,7 @@ export const getWatchListFilter = (filters) => {
 };
 
 export const unrenderFilters = () => {
-  let filterArray = FILTERS_AREA.querySelectorAll(`.main-navigation__item`);
+  const filterArray = FILTERS_AREA.querySelectorAll(`.main-navigation__item`);
   filterArray.forEach((item) => {
     FILTERS_AREA.removeChild(item);
   });

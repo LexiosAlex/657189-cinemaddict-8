@@ -29,7 +29,7 @@ export default class Statistic extends Component {
   }
 
   getStatisticData(filmsData) {
-    this._historyArray = filmsData.filter((it) => it.isAlreadyWatched === true);
+    this._historyArray = filmsData.filter((it) => it.isAlreadyWatched);
 
     this._totalTime = 0;
 

@@ -77,15 +77,12 @@ const mainFunction = (filmsData) => {
     filmPopupCard.onAlreadyWatchedChange = (id, state) => {
       const dataIndex = filmsData.findIndex((it) => it.id === id);
 
-      if (state === false) {
-        filmsData[dataIndex].watchingDate = null;
-      } else {
-        filmsData[dataIndex].watchingDate = Date.now();
-      }
+      filmsData[dataIndex].watchingDate = state ? Date.now() : null;
+
       filmsData[dataIndex].isAlreadyWatched = state;
 
       const filter = getHistoryFilter(filters);
-      const amount = filmsData.filter((it) => it.isAlreadyWatched === true).length;
+      const amount = filmsData.filter((it) => it.isAlreadyWatched).length;
 
       const filmCard = filmCards[filmCards.findIndex((it) => it.filmId === dataIndex.toString())];
 
@@ -97,6 +94,7 @@ const mainFunction = (filmsData) => {
         filter.update({amount});
         filter.reRender();
         renderExtraCardsBlock();
+        renderProifleRating();
       });
     };
 
@@ -105,7 +103,7 @@ const mainFunction = (filmsData) => {
       filmsData[dataIndex].isFavorite = state;
 
       const filter = getFavoritesFilter(filters);
-      const amount = filmsData.filter((it) => it.isFavorite === true).length;
+      const amount = filmsData.filter((it) => it.isFavorite).length;
 
       const filmCard = filmCards[filmCards.findIndex((it) => it.filmId === dataIndex.toString())];
 
@@ -125,7 +123,7 @@ const mainFunction = (filmsData) => {
       filmsData[dataIndex].isWatchList = state;
 
       const filter = getWatchListFilter(filters);
-      const amount = filmsData.filter((it) => it.isWatchList === true).length;
+      const amount = filmsData.filter((it) => it.isWatchList).length;
 
       const filmCard = filmCards[filmCards.findIndex((it) => it.filmId === dataIndex.toString())];
 
@@ -165,15 +163,13 @@ const mainFunction = (filmsData) => {
     card.onMarkAsWatched = (state, id) => {
       const dataIndex = filmsData.findIndex((it) => it.id === id);
       filmsData[dataIndex].isAlreadyWatched = state;
-      if (state) {
-        filmsData[dataIndex].watchingDate = Date.now();
-      } else {
-        filmsData[dataIndex].watchingDate = null;
-      }
+
+      filmsData[dataIndex].watchingDate = state ? Date.now() : null;
+
       card.reRender();
 
       const filter = filters[filters.findIndex((it) => it.id === `HistoryFilms`)];
-      const amount = filmsData.filter((it) => it.isAlreadyWatched === true).length;
+      const amount = filmsData.filter((it) => it.isAlreadyWatched).length;
       filter.update({amount});
       filter.reRender();
 
@@ -182,6 +178,7 @@ const mainFunction = (filmsData) => {
       return provider.updateMovie({id, data: filmsData[dataIndex].toRaw()})
       .then(() => {
         renderExtraCardsBlock();
+        renderProifleRating();
       });
     };
 
@@ -191,7 +188,7 @@ const mainFunction = (filmsData) => {
       card.reRender();
 
       const filter = filters[filters.findIndex((it) => it.id === `FavoritesFilms`)];
-      const amount = filmsData.filter((it) => it.isFavorite === true).length;
+      const amount = filmsData.filter((it) => it.isFavorite).length;
       filter.update({amount});
       filter.reRender();
 
@@ -207,7 +204,7 @@ const mainFunction = (filmsData) => {
       card.reRender();
 
       const filter = filters[filters.findIndex((it) => it.id === `WatchlistFilms`)];
-      const amount = filmsData.filter((it) => it.isWatchList === true).length;
+      const amount = filmsData.filter((it) => it.isWatchList).length;
       filter.update({amount});
       filter.reRender();
 
@@ -268,7 +265,7 @@ const mainFunction = (filmsData) => {
 
         case `WatchlistFilms`:
           showFilms();
-          filteredFilms = filmsData.filter((it) => it.isWatchList === true);
+          filteredFilms = filmsData.filter((it) => it.isWatchList);
           filmCards = createCardsData(filteredFilms, true);
           renderFilmCards(FILMS_LIST_MAIN, filmCards);
           activateFilmCards(filmCards);
@@ -276,16 +273,15 @@ const mainFunction = (filmsData) => {
 
         case `HistoryFilms`:
           showFilms();
-          filteredFilms = filmsData.filter((it) => it.isAlreadyWatched === true);
+          filteredFilms = filmsData.filter((it) => it.isAlreadyWatched);
           filmCards = createCardsData(filteredFilms, true);
           renderFilmCards(FILMS_LIST_MAIN, filmCards);
           activateFilmCards(filmCards);
-          renderProifleRating();
           break;
 
         case `FavoritesFilms`:
           showFilms();
-          filteredFilms = filmsData.filter((it) => it.isFavorite === true);
+          filteredFilms = filmsData.filter((it) => it.isFavorite);
           filmCards = createCardsData(filteredFilms, true);
           renderFilmCards(FILMS_LIST_MAIN, filmCards);
           activateFilmCards(filmCards);
@@ -328,19 +324,19 @@ const mainFunction = (filmsData) => {
     {
       id: `WatchlistFilms`,
       caption: `Watchlist`,
-      amount: filmsData.filter((it) => it.isWatchList === true).length,
+      amount: filmsData.filter((it) => it.isWatchList).length,
       active: false
     },
     {
       id: `HistoryFilms`,
       caption: `History`,
-      amount: filmsData.filter((it) => it.isAlreadyWatched === true).length,
+      amount: filmsData.filter((it) => it.isAlreadyWatched).length,
       active: false
     },
     {
       id: `FavoritesFilms`,
       caption: `Favorites`,
-      amount: filmsData.filter((it) => it.isFavorite === true).length,
+      amount: filmsData.filter((it) => it.isFavorite).length,
       active: false
     },
     {
@@ -367,13 +363,13 @@ const mainFunction = (filmsData) => {
   };
 
   const renderProifleRating = () => {
-    const watchedMovies = filmsData.filter((it) => it[`isAlreadyWatched`] === true);
+    const watchedMovies = filmsData.filter((it) => it[`isAlreadyWatched`]);
 
     if (watchedMovies.length <= noviceRankLength) {
       PROFILE_RATING_AREA.textContent = `novice`;
     }
 
-    if (watchedMovies.length <= fanRankLength & filmsData.length > noviceRankLength) {
+    if (watchedMovies.length <= fanRankLength & watchedMovies.length > noviceRankLength) {
       PROFILE_RATING_AREA.textContent = `fan`;
     }
 

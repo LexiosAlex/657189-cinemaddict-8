@@ -4,9 +4,7 @@ export const createCardsData = (data, deactivateControls) => {
   const filmCards = [];
 
   data.forEach((it) => {
-    if (deactivateControls) {
-      it.controlsDeactivate = false;
-    }
+    it.controlsDeactivate = !deactivateControls;
     filmCards.push(new Film(it));
   });
 

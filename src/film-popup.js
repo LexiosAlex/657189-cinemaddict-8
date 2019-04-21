@@ -61,7 +61,7 @@ export default class FilmPopup extends Component {
   }
 
   _onEmojiCommentChange(evt) {
-    const emoji = this._parseEmoji(evt.currentTarget.value);
+    const emoji = FilmPopup._parseEmoji(evt.currentTarget.value);
     this._element.querySelector(`.film-details__add-emoji-label`).textContent = emoji;
   }
 
@@ -89,7 +89,7 @@ export default class FilmPopup extends Component {
       };
 
       this.element.querySelectorAll(`input[name = commentEmoji]`).forEach((it) => {
-        if (it.checked === true) {
+        if (it.checked) {
           comment.emoji = it.value;
         }
       });
@@ -131,7 +131,7 @@ export default class FilmPopup extends Component {
     this._onSubmit = fn;
   }
 
-  _parseEmoji(emoji) {
+  static _parseEmoji(emoji) {
     if (emoji === `sleeping`) {
       return `😴`;
     } else if (emoji === `neutral-face`) {
@@ -412,7 +412,7 @@ export default class FilmPopup extends Component {
         <ul class="film-details__comments-list">
         ${this._comments.map((comment) => `
           <li class="film-details__comment">
-            <span class="film-details__comment-emoji">${this._parseEmoji(comment.emoji)}</span>
+            <span class="film-details__comment-emoji">${FilmPopup._parseEmoji(comment.emoji)}</span>
             <div>
               <p class="film-details__comment-text">${comment.text}</p>
               <p class="film-details__comment-info">
