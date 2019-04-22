@@ -1,14 +1,15 @@
 self.addEventListener(`install`, (evt) => {
-  const openChache = chaches.open(`STATIC_V1.0`)
+  const openCache = caches.open(`STATIC_V1.0`)
     .then((cache) => {
       return cache.addAll([
-        `/`,
+        `/images/`,
         `/index.html`,
-        `/main.js`
+        `/css/`,
+        `bundle.js`
         ]);
     });
 
-    evt.waitUntil(openChache);
+    evt.waitUntil(openCache);
 });
 
 self.addEventListener(`activate`, () => {
