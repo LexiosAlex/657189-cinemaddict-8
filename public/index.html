@@ -69,6 +69,16 @@
   </section>
 </footer>
 <script type="text/javascript" src="bundle.js"></script>
+<script type="text/javascript">
+navigator.serviceWorker.register('./sw.js')
+  .then(function(reg) {
+
+    console.log('Registration succeeded. Scope is ' + reg.scope);
+  })
+  .catch(function(error) {
+    console.log('Registration failed with ' + error);
+  });
+</script>
 </body>
 </html>
 
